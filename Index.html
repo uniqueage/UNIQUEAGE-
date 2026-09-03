@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UNIQUE AGE · UAGE</title>
+  <!-- Font Awesome for cart & arrow icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f0f8ff 0%, #d9edff 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ----- royal & sky blue theme ----- */
+    :root {
+      --royal: #1a3c8f;
+      --royal-light: #2a4db0;
+      --sky: #4fa9e8;
+      --sky-light: #7fc4f0;
+      --sky-pale: #c6e2ff;
+    }
+
+    /* ----- HEADER / UAGE italic slant ----- */
+    .header {
+      background: linear-gradient(135deg, var(--royal), var(--royal-light));
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      box-shadow: 0 8px 18px rgba(26, 60, 143, 0.3);
+      border-bottom: 3px solid var(--sky);
+    }
+
+    .brand {
+      font-size: 3.2rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      font-style: italic;
+      transform: skewX(-10deg) scale(1.02);
+      color: white;
+      text-shadow: 4px 4px 0 #0f2a5e, 0 0 12px rgba(79, 169, 232, 0.5);
+      transition: 0.2s;
+    }
+    .brand span {
+      color: var(--sky-light);
+      font-style: italic;
+      transform: skewX(-5deg);
+      display: inline-block;
+    }
+
+    .nav-icons {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      color: white;
+    }
+    .nav-icons a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1.1rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 40px;
+      transition: 0.2s;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(2px);
+      border: 1px solid transparent;
+    }
+    .nav-icons a i {
+      margin-right: 8px;
+    }
+    .nav-icons a:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: var(--sky-light);
+      color: #fff;
+      transform: scale(1.02);
+    }
+    .cart-badge {
+      background: var(--sky);
+      color: #0a1f44;
+      font-weight: 700;
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      margin-left: 6px;
+      font-size: 0.9rem;
+    }
+
+    /* ----- CAROUSEL HERO ----- */
+    .hero-carousel {
+      position: relative;
+      max-width: 1300px;
+      margin: 2rem auto 1.5rem;
+      border-radius: 48px 48px 32px 32px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px -10px rgba(26, 60, 143, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      background: #eef7fe;
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      padding: 2.5rem 3.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, #d4e9ff 0%, #b2d9f7 100%);
+      min-height: 340px;
+    }
+    .carousel-slide:nth-child(1) {
+      background: linear-gradient(145deg, #c2dbff, #a2caf0);
+    }
+    .carousel-slide:nth-child(2) {
+      background: linear-gradient(145deg, #b5d4f5, #8dbce8);
+    }
+    .carousel-slide:nth-child(3) {
+      background: linear-gradient(145deg, #c9e2ff, #aac8ee);
+    }
+
+    .slide-text {
+      flex: 1 1 260px;
+      color: #08204b;
+      padding: 0.5rem;
+    }
+    .slide-text h2 {
+      font-size: 2.6rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--royal);
+      text-shadow: 0 2px 6px rgba(255, 255, 255, 0.3);
+      margin-bottom: 0.5rem;
+    }
+    .slide-text h2 i {
+      color: var(--royal-light);
+      margin-right: 8px;
+    }
+    .slide-text p {
+      font-size: 1.2rem;
+      line-height: 1.5;
+      color: #10346b;
+      max-width: 420px;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.25);
+      padding: 0.6rem 1.2rem;
+      border-radius: 60px;
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    .slide-text .price-tag {
+      margin-top: 1rem;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #0b2b68;
+      background: rgba(255, 255, 255, 0.4);
+      display: inline-block;
+      padding: 0.2rem 1.6rem;
+      border-radius: 60px;
+      backdrop-filter: blur(4px);
+    }
+
+    .slide-image {
+      flex: 0 0 180px;
+      text-align: center;
+      font-size: 5.5rem;
+      filter: drop-shadow(0 8px 14px rgba(0, 30, 70, 0.3));
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 120px;
+      padding: 0.8rem 1.2rem;
+      backdrop-filter: blur(3px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: #0f3470;
+    }
+
+    /* carousel controls */
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(26, 60, 143, 0.6);
+      backdrop-filter: blur(6px);
+      border: 2px solid white;
+      color: white;
+      font-size: 2rem;
+      width: 48px;
+      height: 48px;
+      border-radius: 60px;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .carousel-btn:hover {
+      background: var(--royal);
+      transform: translateY(-50%) scale(1.06);
+      border-color: var(--sky-light);
+    }
+    .carousel-btn.left {
+      left: 18px;
+    }
+    .carousel-btn.right {
+      right: 18px;
+    }
+
+    .carousel-dots {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(6px);
+      padding: 8px 18px;
+      border-radius: 60px;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: 0.3s;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .dot.active {
+      background: white;
+      width: 32px;
+      background: var(--royal);
+      border-color: white;
+      box-shadow: 0 0 10px #8fcbff;
+    }
+
+    /* ----- PRODUCT SECTION (add to cart) ----- */
+    .product-section {
+      max-width: 1300px;
+      margin: 1rem auto 3rem;
+      padding: 0 1.5rem;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--royal);
+      border-left: 8px solid var(--sky);
+      padding-left: 1.2rem;
+      margin-bottom: 2rem;
+      text-shadow: 0 2px 4px rgba(79, 169, 232, 0.2);
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2rem;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 40px 40px 30px 30px;
+      padding: 1.8rem 1.2rem 1.8rem;
+      text-align: center;
+      box-shadow: 0 12px 28px rgba(26, 60, 143, 0.12);
+      transition: 0.25s;
+      border: 1px solid rgba(79, 169, 232, 0.2);
+      backdrop-filter: blur(2px);
+      background: rgba(255, 255, 255, 0.8);
+    }
+    .product-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--sky);
+      box-shadow: 0 25px 40px rgba(26, 60, 143, 0.2);
+      background: white;
+    }
+
+    .product-icon {
+      font-size: 3.8rem;
+      color: var(--royal-light);
+      background: linear-gradient(135deg, #d6eaff, #b7d6f7);
+      width: 100px;
+      height: 100px;
+      line-height: 100px;
+      border-radius: 60px;
+      margin: 0 auto 1rem;
+      box-shadow: 0 6px 12px rgba(0, 40, 80, 0.1);
+    }
+    .product-card h3 {
+      font-size: 1.5rem;
+      color: var(--royal);
+      margin-bottom: 0.3rem;
+    }
+    .product-card .sub {
+      color: #1f4d8a;
+      font-weight: 500;
+      font-size: 0.95rem;
+      margin-bottom: 0.8rem;
+    }
+    .product-card .price {
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: #0f3470;
+      background: var(--sky-pale);
+      display: inline-block;
+      padding: 0.1rem 1.8rem;
+      border-radius: 60px;
+      margin-bottom: 1rem;
+    }
+    .product-card .btn-cart {
+      background: linear-gradient(135deg, var(--royal), var(--royal-light));
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 60px;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 6px 12px rgba(26, 60, 143, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      width: 100%;
+      max-width: 180px;
+      letter-spacing: 1px;
+    }
+    .product-card .btn-cart i {
+      margin-right: 10px;
+    }
+    .product-card .btn-cart:hover {
+      background: var(--sky);
+      color: #08204b;
+      transform: scale(1.02);
+      border-color: white;
+      box-shadow: 0 8px 18px rgba(79, 169, 232, 0.4);
+    }
+
+    .toast-message {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--royal);
+      color: white;
+      padding: 0.8rem 2.4rem;
+      border-radius: 60px;
+      font-weight: 600;
+      box-shadow: 0 12px 30px rgba(26, 60, 143, 0.4);
+      border-left: 6px solid var(--sky-light);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .toast-message.show {
+      opacity: 1;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.8rem;
+      color: var(--royal);
+      font-weight: 500;
+      border-top: 2px solid rgba(79, 169, 232, 0.2);
+      margin-top: auto;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(3px);
+    }
+
+    @media (max-width: 700px) {
+      .brand { font-size: 2.4rem; }
+      .slide-text h2 { font-size: 2rem; }
+      .slide-image { font-size: 4rem; flex-basis: 120px; }
+      .carousel-slide { padding: 1.8rem; }
+      .carousel-btn { width: 38px; height: 38px; font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER: UAGE italic slant -->
+<header class="header">
+  <div class="brand">
+    <span>U</span>AGE
+  </div>
+  <div class="nav-icons">
+    <a href="#"><i class="fas fa-store"></i> Shop</a>
+    <a href="#"><i class="fas fa-tag"></i> Offers</a>
+    <a href="#" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3);">
+      <i class="fas fa-shopping-cart"></i> Cart <span class="cart-badge" id="cartCount">0</span>
+    </a>
+  </div>
+</header>
+
+<!-- CAROUSEL HERO SECTION -->
+<div class="hero-carousel">
+  <div class="carousel-track" id="carouselTrack">
+    <!-- slide 1 -->
+    <div class="carousel-slide">
+      <div class="slide-text">
+        <h2><i class="fas fa-sparkles"></i> Crystal Clean</h2>
+        <p>✨ Grease vanishes · scent lingers</p>
+        <div class="price-tag">₦4,500</div>
+      </div>
+      <div class="slide-image"><i class="fas fa-soap"></i></div>
+    </div>
+    <!-- slide 2 -->
+    <div class="carousel-slide">
+      <div class="slide-text">
+        <h2><i class="fas fa-leaf"></i> Fresh Zest</h2>
+        <p>🌿 Lemon & lavender · 100% grease cut</p>
+        <div class="price-tag">₦5,200</div>
+      </div>
+      <div class="slide-image"><i class="fas fa-hand-sparkles"></i></div>
+    </div>
+    <!-- slide 3 -->
+    <div class="carousel-slide">
+      <div class="slide-text">
+        <h2><i class="fas fa-water"></i> Silky Foam</h2>
+        <p>🧴 Extra gentle · tough on oil</p>
+        <div class="price-tag">₦4,900</div>
+      </div>
+      <div class="slide-image"><i class="fas fa-bottle-water"></i></div>
+    </div>
+  </div>
+
+  <!-- controls -->
+  <button class="carousel-btn left" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+  <button class="carousel-btn right" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+
+  <div class="carousel-dots" id="dotsContainer">
+    <span class="dot active" data-index="0"></span>
+    <span class="dot" data-index="1"></span>
+    <span class="dot" data-index="2"></span>
+  </div>
+</div>
+
+<!-- PRODUCTS + ADD TO CART -->
+<section class="product-section">
+  <h2 class="section-title"><i class="fas fa-cart-plus" style="margin-right: 12px;"></i> Our Dishwash</h2>
+  <div class="product-grid">
+    <div class="product-card" data-name="Crystal Clean" data-price="4500">
+      <div class="product-icon"><i class="fas fa-flask"></i></div>
+      <h3>Crystal Clean</h3>
+      <div class="sub">Grease destroyer · fresh scent</div>
+      <div class="price">₦4,500</div>
+      <button class="btn-cart add-to-cart"><i class="fas fa-cart-plus"></i> Add to cart</button>
+    </div>
+    <div class="product-card" data-name="Fresh Zest" data-price="5200">
+      <div class="product-icon"><i class="fas fa-lemon"></i></div>
+      <h3>Fresh Zest</h3>
+      <div class="sub">Lemon & lavender · 500ml</div>
+      <div class="price">₦5,200</div>
+      <button class="btn-cart add-to-cart"><i class="fas fa-cart-plus"></i> Add to cart</button>
+    </div>
+    <div class="product-card" data-name="Silky Foam" data-price="4900">
+      <div class="product-icon"><i class="fas fa-hand-sparkles"></i></div>
+      <h3>Silky Foam</h3>
+      <div class="sub">Mild on hands · tough on oil</div>
+      <div class="price">₦4,900</div>
+      <button class="btn-cart add-to-cart"><i class="fas fa-cart-plus"></i> Add to cart</button>
+    </div>
+  </div>
+</section>
+
+<!-- toast notification -->
+<div id="toast" class="toast-message">✔ Added to cart</div>
+
+<footer>
+  <i class="fas fa-droplet" style="color: var(--sky);"></i> UNIQUE AGE — clean dishes, happy moments
+</footer>
+
+<script>
+  (function() {
+    // ---- CAROUSEL ----
+    const track = document.getElementById('carouselTrack');
+    const slides = track.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.dot');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    let currentIndex = 0;
+    const totalSlides = slides.length;
+
+    function updateCarousel(index) {
+      if (index < 0) index = totalSlides - 1;
+      if (index >= totalSlides) index = 0;
+      currentIndex = index;
+      track.style.transform = `translateX(-${currentIndex * 100}%)`;
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    function nextSlide() { updateCarousel(currentIndex + 1); }
+    function prevSlide() { updateCarousel(currentIndex - 1); }
+
+    nextBtn.addEventListener('click', nextSlide);
+    prevBtn.addEventListener('click', prevSlide);
+
+    dots.forEach((dot, idx) => {
+      dot.addEventListener('click', () => updateCarousel(idx));
+    });
+
+    // optional auto-play (pause on hover)
+    let autoInterval = setInterval(nextSlide, 5000);
+    const carouselContainer = document.querySelector('.hero-carousel');
+    carouselContainer.addEventListener('mouseenter', () => clearInterval(autoInterval));
+    carouselContainer.addEventListener('mouseleave', () => {
+      autoInterval = setInterval(nextSlide, 5000);
+    });
+
+    // ---- ADD TO CART (with counter & toast) ----
+    const cartCountSpan = document.getElementById('cartCount');
+    let cartCount = 0;
+    const toast = document.getElementById('toast');
+    let toastTimeout;
+
+    function showToast(message = '✔ Added to cart') {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    const addButtons = document.querySelectorAll('.add-to-cart');
+    addButtons.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // get product name from parent card
+        const card = this.closest('.product-card');
+        const name = card.getAttribute('data-name') || 'Dishwash';
+        cartCount++;
+        cartCountSpan.textContent = cartCount;
+        showToast(`✔ ${name} added to cart`);
+        // haptic feedback (optional)
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => { this.style.transform = ''; }, 150);
+      });
+    });
+
+    // also cart icon in header shows count
+    window.updateCart = function() { /* no-op */ };
+  })();
+</script>
+</body>
+</html>
