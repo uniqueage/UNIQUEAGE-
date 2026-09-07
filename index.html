@@ -116,76 +116,90 @@
 
     .carousel-slide {
       min-width: 100%;
-      padding: 2.5rem 3.5rem;
+      padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.5rem, 5vw, 3.5rem);
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      background: linear-gradient(135deg, #d4e9ff 0%, #b2d9f7 100%);
-      min-height: 340px;
+      min-height: clamp(320px, 38vw, 420px);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
+    /* photo backgrounds: verified live Unsplash images + royal-blue overlay for text contrast */
     .carousel-slide:nth-child(1) {
-      background: linear-gradient(145deg, #c2dbff, #a2caf0);
+      background-image: linear-gradient(100deg, rgba(8, 32, 75, 0.9) 0%, rgba(26, 60, 143, 0.72) 48%, rgba(79, 169, 232, 0.32) 100%),
+        url('https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=1600&q=80');
     }
     .carousel-slide:nth-child(2) {
-      background: linear-gradient(145deg, #b5d4f5, #8dbce8);
+      background-image: linear-gradient(100deg, rgba(8, 32, 75, 0.9) 0%, rgba(26, 60, 143, 0.72) 48%, rgba(79, 169, 232, 0.32) 100%),
+        url('https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1600&q=80');
     }
     .carousel-slide:nth-child(3) {
-      background: linear-gradient(145deg, #c9e2ff, #aac8ee);
+      background-image: linear-gradient(100deg, rgba(8, 32, 75, 0.9) 0%, rgba(26, 60, 143, 0.72) 48%, rgba(79, 169, 232, 0.32) 100%),
+        url('https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1600&q=80');
     }
 
     .slide-text {
       flex: 1 1 260px;
-      color: #08204b;
+      color: #f2f8ff;
       padding: 0.5rem;
     }
     .slide-text h2 {
       font-size: 2.6rem;
       font-weight: 700;
       letter-spacing: -0.5px;
-      color: var(--royal);
-      text-shadow: 0 2px 6px rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      text-shadow: 0 2px 10px rgba(8, 32, 75, 0.6);
       margin-bottom: 0.5rem;
     }
     .slide-text h2 i {
-      color: var(--royal-light);
+      color: var(--sky-light);
       margin-right: 8px;
     }
     .slide-text p {
       font-size: 1.2rem;
       line-height: 1.5;
-      color: #10346b;
+      color: #eaf4ff;
       max-width: 420px;
       font-weight: 500;
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(8, 32, 75, 0.4);
       padding: 0.6rem 1.2rem;
       border-radius: 60px;
-      backdrop-filter: blur(2px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.35);
     }
     .slide-text .price-tag {
       margin-top: 1rem;
       font-size: 1.8rem;
       font-weight: 700;
-      color: #0b2b68;
-      background: rgba(255, 255, 255, 0.4);
+      color: #ffffff;
+      background: rgba(8, 32, 75, 0.45);
       display: inline-block;
       padding: 0.2rem 1.6rem;
       border-radius: 60px;
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
     }
 
     .slide-image {
-      flex: 0 0 180px;
-      text-align: center;
-      font-size: 5.5rem;
-      filter: drop-shadow(0 8px 14px rgba(0, 30, 70, 0.3));
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 120px;
-      padding: 0.8rem 1.2rem;
-      backdrop-filter: blur(3px);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      color: #0f3470;
+      flex: 0 0 260px;
+      height: 230px;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 12px 24px rgba(0, 40, 90, 0.25);
+      border: 3px solid rgba(255, 255, 255, 0.6);
+      background: #dcebfb;
+    }
+    .slide-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .carousel-slide:hover .slide-image img {
+      transform: scale(1.05);
     }
 
     /* carousel controls */
@@ -294,15 +308,18 @@
     }
 
     .product-icon {
-      font-size: 3.8rem;
-      color: var(--royal-light);
-      background: linear-gradient(135deg, #d6eaff, #b7d6f7);
-      width: 100px;
-      height: 100px;
-      line-height: 100px;
-      border-radius: 60px;
+      width: 100%;
+      height: clamp(150px, 20vw, 190px);
+      object-fit: cover;
+      border-radius: 26px;
       margin: 0 auto 1rem;
-      box-shadow: 0 6px 12px rgba(0, 40, 80, 0.1);
+      display: block;
+      box-shadow: 0 6px 12px rgba(0, 40, 80, 0.15);
+      border: 1px solid rgba(79, 169, 232, 0.25);
+      transition: transform 0.3s ease;
+    }
+    .product-card:hover .product-icon {
+      transform: scale(1.03);
     }
     .product-card h3 {
       font-size: 1.5rem;
@@ -387,7 +404,7 @@
     @media (max-width: 700px) {
       .brand { font-size: 2.4rem; }
       .slide-text h2 { font-size: 2rem; }
-      .slide-image { font-size: 4rem; flex-basis: 120px; }
+      .slide-image { flex-basis: 150px; height: 130px; border-radius: 24px; }
       .carousel-slide { padding: 1.8rem; }
       .carousel-btn { width: 38px; height: 38px; font-size: 1.4rem; }
     }
@@ -419,7 +436,9 @@
         <p>✨ Grease vanishes · scent lingers</p>
         <div class="price-tag">₦4,500</div>
       </div>
-      <div class="slide-image"><i class="fas fa-soap"></i></div>
+      <div class="slide-image">
+        <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80" alt="Crystal Clean dish soap with sparkling clean supplies" />
+      </div>
     </div>
     <!-- slide 2 -->
     <div class="carousel-slide">
@@ -428,7 +447,9 @@
         <p>🌿 Lemon & lavender · 100% grease cut</p>
         <div class="price-tag">₦5,200</div>
       </div>
-      <div class="slide-image"><i class="fas fa-hand-sparkles"></i></div>
+      <div class="slide-image">
+        <img src="https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=800&q=80" alt="Fresh Zest soap bubbles" />
+      </div>
     </div>
     <!-- slide 3 -->
     <div class="carousel-slide">
@@ -437,7 +458,9 @@
         <p>🧴 Extra gentle · tough on oil</p>
         <div class="price-tag">₦4,900</div>
       </div>
-      <div class="slide-image"><i class="fas fa-bottle-water"></i></div>
+      <div class="slide-image">
+        <img src="https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=800&q=80" alt="Silky Foam suds close-up" />
+      </div>
     </div>
   </div>
 
@@ -457,21 +480,21 @@
   <h2 class="section-title"><i class="fas fa-cart-plus" style="margin-right: 12px;"></i> Our Dishwash</h2>
   <div class="product-grid">
     <div class="product-card" data-name="Crystal Clean" data-price="4500">
-      <div class="product-icon"><i class="fas fa-flask"></i></div>
+      <img class="product-icon" src="https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=800&q=80" alt="Crystal Clean dish soap with sparkling soap bubbles" loading="lazy" />
       <h3>Crystal Clean</h3>
       <div class="sub">Grease destroyer · fresh scent</div>
       <div class="price">₦4,500</div>
       <button class="btn-cart add-to-cart"><i class="fas fa-cart-plus"></i> Add to cart</button>
     </div>
     <div class="product-card" data-name="Fresh Zest" data-price="5200">
-      <div class="product-icon"><i class="fas fa-lemon"></i></div>
+      <img class="product-icon" src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80" alt="Fresh Zest dish soap with cleaning supplies" loading="lazy" />
       <h3>Fresh Zest</h3>
       <div class="sub">Lemon & lavender · 500ml</div>
       <div class="price">₦5,200</div>
       <button class="btn-cart add-to-cart"><i class="fas fa-cart-plus"></i> Add to cart</button>
     </div>
     <div class="product-card" data-name="Silky Foam" data-price="4900">
-      <div class="product-icon"><i class="fas fa-hand-sparkles"></i></div>
+      <img class="product-icon" src="https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=800&q=80" alt="Silky Foam dish soap with rich suds" loading="lazy" />
       <h3>Silky Foam</h3>
       <div class="sub">Mild on hands · tough on oil</div>
       <div class="price">₦4,900</div>
