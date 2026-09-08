@@ -901,6 +901,141 @@ section[id] { scroll-margin-top: 96px; }
 .empty-state h3 { font-family: var(--font-display); font-style: italic; font-size: 1.4rem; margin: 0.8rem 0 0.4rem; }
 .empty-state p { color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 1.3rem; }
 
+/* ============ PRODUCT DETAIL ============ */
+.product-detail { padding-bottom: var(--section-y); }
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin: clamp(1rem, 3vw, 1.6rem) 0 clamp(1.2rem, 3vw, 1.8rem);
+}
+.breadcrumb a { color: var(--teal-deep); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb i { font-size: 0.6rem; color: #b3bfc9; }
+.breadcrumb span { color: var(--ink); }
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: clamp(1.4rem, 4vw, 3rem);
+  align-items: start;
+}
+.detail-media {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+.detail-media img {
+  width: 100%;
+  height: clamp(320px, 46vw, 560px);
+  object-fit: cover;
+  display: block;
+}
+.detail-media .card-flag { top: 16px; left: 16px; font-size: 0.78rem; }
+
+.detail-info h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 4.6vw, 3rem);
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0.6rem 0 0.7rem;
+}
+.pd-desc {
+  color: var(--ink-soft);
+  line-height: 1.7;
+  font-size: clamp(0.98rem, 1.8vw, 1.08rem);
+  margin: 1rem 0 0;
+}
+.detail-pricing {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin-top: 1.2rem;
+  padding: 1.1rem 0;
+  border-top: 1px dashed var(--line);
+  border-bottom: 1px dashed var(--line);
+}
+.detail-pricing .price { font-size: clamp(1.9rem, 3.4vw, 2.4rem); }
+.detail-pricing .price small { font-size: 0.5em; }
+.detail-pricing .old {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: #b3bfc9;
+  text-decoration: line-through;
+  font-weight: 600;
+}
+.pd-sizes-block { margin-top: 1.2rem; }
+.pd-label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.6rem;
+}
+.qty-row {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.7rem, 2vw, 1rem);
+  margin-top: 1.2rem;
+  flex-wrap: wrap;
+}
+.qty-row .qty-stepper button { width: 42px; height: 42px; }
+.qty-row .qty-stepper span { min-width: 44px; }
+.qty-row .btn { flex: 1 1 auto; min-width: 210px; padding-block: 1rem; }
+.detail-perks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  gap: 0.8rem;
+  margin-top: 1.4rem;
+}
+.detail-perks > div {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.8rem 0.9rem;
+}
+.detail-perks i { color: var(--teal); margin-top: 0.2rem; }
+.detail-perks strong { display: block; font-size: 0.85rem; color: var(--ink); }
+.detail-perks span { font-size: 0.78rem; color: var(--ink-soft); line-height: 1.45; }
+.detail-features {
+  margin-top: 1.5rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: clamp(1.1rem, 2.4vw, 1.5rem);
+  box-shadow: var(--shadow-sm);
+}
+.detail-features ul { list-style: none; margin-top: 0.8rem; display: grid; gap: 0.65rem; }
+.detail-features li {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.detail-features li i { color: var(--teal); margin-top: 0.15rem; }
+.related { padding-top: var(--section-y); }
+.related .section-head { margin-bottom: clamp(1.2rem, 3vw, 1.8rem); }
+
+/* clickable product card links */
+.product-card h3 a { text-decoration: none; color: inherit; }
+.product-card h3 a:hover { color: var(--teal-deep); }
+.card-media { display: block; }
+
 /* ============ REVIEWS ============ */
 .reviews { padding-bottom: var(--section-y); }
 .reviews-grid {

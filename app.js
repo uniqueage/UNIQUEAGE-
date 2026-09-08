@@ -239,13 +239,14 @@
       priceHtml = '<span class="price">' + D.format(p.price) +
         (p.oldPrice ? '<span class="old">' + D.format(p.oldPrice) + "</span>" : "") + "</span>";
     }
+    var href = "product.html?id=" + p.id;
     return '<article class="product-card reveal" data-id="' + p.id + '">' +
-      '<div class="card-media">' +
+      '<a class="card-media" href="' + href + '" aria-label="View ' + p.name + '">' +
         '<img src="' + p.image + '" alt="' + p.name + '" loading="lazy" />' +
         (p.badge ? '<span class="card-flag">' + p.badge + "</span>" : "") +
-      "</div>" +
+      "</a>" +
       '<span class="card-cat"><i class="fas ' + cat.icon + '"></i> ' + cat.name + "</span>" +
-      "<h3>" + p.name + "</h3>" +
+      '<h3><a href="' + href + '">' + p.name + "</a></h3>" +
       '<div class="card-rating">' + starsHtml(p.rating) + " " + p.rating + " · " + p.reviews + " reviews</div>" +
       '<p class="sub">' + p.desc + "</p>" +
       sizesHtml +
@@ -340,6 +341,123 @@
     carousel.addEventListener("focusin", stopAuto);
     carousel.addEventListener("focusout", startAuto);
     startAuto();
+  }
+
+  /* ---------- product detail page ---------- */
+  function initProduct() {
+    var root = document.getElementById("productDetail");
+    if (!root) return;
+    var params = new URLSearchParams(window.location.search);
+    var p = D.getProduct(params.get("id"));
+    if (!p) {
+      root.innerHTML = '<div class="wrap"><div class="empty-state" style="margin-top:var(--section-y)">' +
+        '<i class="fas fa-triangle-exclamation"></i><h3>Product not found</h3>' +
+        "<p>The item you're looking for doesn't exist or was moved.</p>" +
+        '<a class="btn btn-primary" href="shop.html"><i class="fas fa-store"></i>Back to shop</a></div></div>';
+      return;
+    }
+    var cat = catOf(p.category);
+    document.title = p.name + " · UAGE — UNIQUE AGE";
+
+    var b = document.getElementById("pdBreadcrumb");
+    if (b) b.innerHTML = '<a href="index.html">Home</a><i class="fas fa-chevron-right"></i>' +
+      '<a href="shop.html">Shop</a><i class="fas fa-chevron-right"></i>' +
+      '<a href="shop.html?cat=' + p.category + '">' + cat.name + "</a>" +
+      '<i class="fas fa-chevron-right"></i><span>' + p.name + "</span>";
+
+    var img = document.getElementById("pdImage");
+    if (img) { img.src = p.image; img.alt = p.name; }
+    var badge = document.getElementById("pdBadge");
+    if (badge) { if (p.badge) badge.textContent = p.badge; else badge.style.display = "none"; }
+    var catEl = document.getElementById("pdCat");
+    if (catEl) catEl.innerHTML = '<i class="fas ' + cat.icon + '"></i> ' + cat.name;
+    var nameEl = document.getElementById("pdName");
+    if (nameEl) nameEl.textContent = p.name;
+    var ratingEl = document.getElementById("pdRating");
+    if (ratingEl) ratingEl.innerHTML = starsHtml(p.rating) + " " + p.rating + " · " + p.reviews + " reviews";
+    var descEl = document.getElementById("pdDesc");
+    if (descEl) descEl.textContent = p.desc;
+
+    /* size selection */
+    var selectedSize = p.sizes && p.sizes.length ? p.sizes[0].label : "";
+    function currentPrice() {
+      if (p.sizes && p.sizes.length) {
+        var s = p.sizes.find(function (x) { return x.label === selectedSize; });
+        return s ? s.price : p.sizes[0].price;
+      }
+      return p.price || 0;
+    }
+    function renderPrice() {
+      var el = document.getElementById("pdPrice");
+      var old = document.getElementById("pdOldPrice");
+      if (!el) return;
+      if (p.sizes && p.sizes.length) {
+        el.innerHTML = D.format(currentPrice()) + "<small> · " + selectedSize + "</small>";
+        if (old) old.style.display = "none";
+      } else {
+        el.textContent = D.format(p.price);
+        if (old) {
+          if (p.oldPrice) { old.textContent = D.format(p.oldPrice); old.style.display = ""; }
+          else old.style.display = "none";
+        }
+      }
+    }
+
+    var sizesEl = document.getElementById("pdSizes");
+    if (sizesEl) {
+      if (p.sizes && p.sizes.length) {
+        sizesEl.innerHTML = p.sizes.map(function (s, i) {
+          return '<button type="button" class="size-pill' + (i === 0 ? " active" : "") + '" data-size="' + s.label + '">' +
+            s.label + ' <small>· ' + D.format(s.price) + "</small></button>";
+        }).join("");
+        sizesEl.querySelectorAll(".size-pill").forEach(function (pill) {
+          pill.addEventListener("click", function () {
+            sizesEl.querySelectorAll(".size-pill").forEach(function (x) { x.classList.remove("active"); });
+            pill.classList.add("active");
+            selectedSize = pill.dataset.size;
+            renderPrice();
+          });
+        });
+      } else {
+        var block = sizesEl.closest(".pd-sizes-block");
+        if (block) block.style.display = "none";
+      }
+    }
+
+    /* quantity stepper */
+    var qty = 1;
+    var qtyVal = document.getElementById("pdQtyValue");
+    var minus = document.getElementById("pdQtyMinus");
+    var plus = document.getElementById("pdQtyPlus");
+    function renderQty() { if (qtyVal) qtyVal.textContent = qty; }
+    if (minus) minus.addEventListener("click", function () { if (qty > 1) { qty--; renderQty(); } });
+    if (plus) plus.addEventListener("click", function () { qty++; renderQty(); });
+
+    var addBtn = document.getElementById("pdAddBtn");
+    if (addBtn) addBtn.addEventListener("click", function () { addToCart(p.id, selectedSize, qty); });
+
+    /* category features */
+    var feats = cat.features || [];
+    var featsEl = document.getElementById("pdFeatures");
+    if (featsEl) {
+      if (feats.length) {
+        featsEl.innerHTML = '<div class="pd-label">Why you\'ll love it</div><ul>' +
+          feats.map(function (f) { return '<li><i class="fas fa-circle-check"></i>' + f + "</li>"; }).join("") + "</ul>";
+      } else featsEl.style.display = "none";
+    }
+
+    /* related products */
+    var relatedEl = document.getElementById("relatedGrid");
+    if (relatedEl) {
+      var same = D.byCategory(p.category).filter(function (x) { return x.id !== p.id; });
+      var others = D.products.filter(function (x) { return x.category !== p.category; })
+        .sort(function (a, b) { return (b.featured ? 1 : 0) - (a.featured ? 1 : 0); });
+      var related = same.concat(others).slice(0, 4);
+      relatedEl.innerHTML = related.map(cardHtml).join("");
+      bindCards(relatedEl);
+    }
+
+    renderPrice();
   }
 
   /* ---------- shop page ---------- */
@@ -721,6 +839,7 @@
   initHeader();
   updateBadges();
   initHome();
+  initProduct();
   initShop();
   renderCart();
   initCartPage();

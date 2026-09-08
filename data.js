@@ -1,10 +1,42 @@
 /* UAGE product catalog — shared across all pages */
 window.UAGE_DATA = {
   categories: [
-    { slug: "dishwash", name: "Dishwash Liquid", icon: "fa-soap", tag: "Kitchen care", blurb: "500ml to 2L jugs" },
-    { slug: "cosmetics", name: "Body Cosmetics", icon: "fa-spa", tag: "Skin & body", blurb: "Butters, scrubs, creams" },
-    { slug: "perfume", name: "Perfumes", icon: "fa-spray-can-sparkles", tag: "Signature scents", blurb: "Eau de parfum" },
-    { slug: "air", name: "Air Fresheners", icon: "fa-wind", tag: "Home & car", blurb: "Mists, candles & more" }
+    {
+      slug: "dishwash", name: "Dishwash Liquid", icon: "fa-soap", tag: "Kitchen care", blurb: "500ml to 2L jugs",
+      features: [
+        "Cuts 100% of grease on contact",
+        "Plant-based, biodegradable formula",
+        "Gentle on hands — no harsh residue",
+        "Fresh scent that lingers after rinsing"
+      ]
+    },
+    {
+      slug: "cosmetics", name: "Body Cosmetics", icon: "fa-spa", tag: "Skin & body", blurb: "Butters, scrubs, creams",
+      features: [
+        "Formulated for all skin types",
+        "Deep, long-lasting moisture",
+        "Paraben-free & cruelty-free",
+        "Lightweight, fast-absorbing texture"
+      ]
+    },
+    {
+      slug: "perfume", name: "Perfumes", icon: "fa-spray-can-sparkles", tag: "Signature scents", blurb: "Eau de parfum",
+      features: [
+        "Long-lasting eau de parfum concentration",
+        "Rich sillage that lingers all day",
+        "Alcohol-based, skin-safe blend",
+        "Available in 30ml, 50ml and 100ml"
+      ]
+    },
+    {
+      slug: "air", name: "Air Fresheners", icon: "fa-wind", tag: "Home & car", blurb: "Mists, candles & more",
+      features: [
+        "Neutralises odours — doesn't just mask them",
+        "Long-lasting fresh scent",
+        "Safe for home, office and car",
+        "Quality you can smell from the first spray"
+      ]
+    }
   ],
   products: [
     /* ============ DISHWASH LIQUID ============ */

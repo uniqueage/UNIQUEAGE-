@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product — UNIQUE AGE · UAGE</title>
+  <meta name="description" content="Product details, sizes and pricing at UAGE — dishwash, body cosmetics, perfumes and air fresheners." />
+  <meta name="theme-color" content="#062a3f" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%AB%A7%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="shop">
+
+  <main>
+    <section class="product-detail" id="productDetail">
+      <div class="wrap">
+        <nav class="breadcrumb" id="pdBreadcrumb" aria-label="Breadcrumb"><!-- injected by app.js --></nav>
+
+        <div class="detail-layout">
+          <div class="detail-media">
+            <img id="pdImage" src="" alt="" />
+            <span class="card-flag" id="pdBadge"></span>
+          </div>
+
+          <div class="detail-info">
+            <span class="card-cat" id="pdCat"></span>
+            <h1 id="pdName"></h1>
+            <div class="card-rating" id="pdRating"></div>
+            <p class="pd-desc" id="pdDesc"></p>
+
+            <div class="detail-pricing">
+              <span class="price" id="pdPrice"></span>
+              <span class="old" id="pdOldPrice"></span>
+              <span class="stock">In stock</span>
+            </div>
+
+            <div class="pd-sizes-block">
+              <div class="pd-label">Select size</div>
+              <div class="size-pills" id="pdSizes"></div>
+            </div>
+
+            <div class="qty-row">
+              <div class="qty-stepper" aria-label="Quantity">
+                <button type="button" id="pdQtyMinus" aria-label="Decrease quantity"><i class="fas fa-minus"></i></button>
+                <span id="pdQtyValue">1</span>
+                <button type="button" id="pdQtyPlus" aria-label="Increase quantity"><i class="fas fa-plus"></i></button>
+              </div>
+              <button class="btn btn-primary" id="pdAddBtn" type="button"><i class="fas fa-cart-plus"></i>Add to cart</button>
+            </div>
+
+            <div class="detail-perks">
+              <div><i class="fas fa-truck-fast"></i><span><strong>Fast delivery</strong>2–4 days nationwide</span></div>
+              <div><i class="fas fa-rotate-left"></i><span><strong>30-day returns</strong>Love it or refunded</span></div>
+              <div><i class="fas fa-shield-halved"></i><span><strong>Safe &amp; trusted</strong>Quality checked</span></div>
+            </div>
+
+            <div class="detail-features" id="pdFeatures"><!-- features injected by app.js --></div>
+          </div>
+        </div>
+
+        <div class="related">
+          <div class="section-head reveal">
+            <div>
+              <span class="eyebrow">Keep browsing</span>
+              <h2 class="section-title">You may also <em>like</em></h2>
+            </div>
+          </div>
+          <div class="product-grid" id="relatedGrid"><!-- cards injected by app.js --></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
