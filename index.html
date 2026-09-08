@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UNIQUE AGE · UAGE — Clean dishes, happy moments</title>
-  <meta name="description" content="UAGE dish soap — grease-busting, plant-based formulas with a fresh citrus scent. Crystal Clean, Fresh Zest and Silky Foam." />
+  <title>UNIQUE AGE · UAGE — Dishwash, Body Care, Perfumes & Air Fresheners</title>
+  <meta name="description" content="UAGE — grease-busting dishwash in every size (500ml to 2L), body cosmetics, perfumes and air fresheners. Delivered nationwide." />
   <meta name="theme-color" content="#062a3f" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%AB%A7%3C/text%3E%3C/svg%3E" />
   <!-- Fonts -->
@@ -13,877 +13,74 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..700&display=swap" rel="stylesheet" />
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-  <style>
-    /* ============ DESIGN TOKENS ============ */
-    :root {
-      --ink: #0a2540;
-      --ink-soft: #45607a;
-      --deep: #062a3f;
-      --deep-2: #0a3a54;
-      --teal: #14b8a6;
-      --teal-deep: #0d9488;
-      --teal-ink: #04322c;
-      --aqua: #7fe6d8;
-      --citrus: #ffb020;
-      --citrus-deep: #9a5b00;
-      --mist: #f6fbfa;
-      --card: #ffffff;
-      --line: rgba(10, 37, 64, 0.08);
-      --star: #fbbf24;
-
-      --font-display: "Fraunces", Georgia, serif;
-      --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-
-      --wrap: min(1240px, 100% - clamp(2rem, 8vw, 5rem));
-      --section-y: clamp(3rem, 8vw, 5.5rem);
-      --radius-lg: clamp(20px, 3vw, 32px);
-      --radius-md: clamp(16px, 2.4vw, 24px);
-      --shadow-sm: 0 2px 8px rgba(6, 42, 63, 0.06);
-      --shadow-md: 0 12px 32px -12px rgba(6, 42, 63, 0.16);
-      --shadow-lg: 0 28px 60px -24px rgba(6, 42, 63, 0.35);
-      --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: var(--font-body);
-      color: var(--ink);
-      background:
-        radial-gradient(1100px 520px at 88% -140px, rgba(20, 184, 166, 0.12), transparent 62%),
-        radial-gradient(900px 480px at -12% 18%, rgba(255, 176, 32, 0.08), transparent 60%),
-        var(--mist);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow-x: clip;
-      -webkit-font-smoothing: antialiased;
-    }
-    img { max-width: 100%; }
-    a { color: inherit; }
-    button { font-family: inherit; }
-    ::selection { background: var(--aqua); color: var(--deep); }
-    :focus-visible { outline: 3px solid rgba(20, 184, 166, 0.55); outline-offset: 3px; border-radius: 8px; }
-    section[id] { scroll-margin-top: 96px; }
-    .wrap { width: var(--wrap); margin-inline: auto; }
-
-    /* ============ ANNOUNCEMENT BAR ============ */
-    .announce {
-      background: linear-gradient(90deg, var(--citrus), #ff8a4d);
-      color: #402a00;
-      text-align: center;
-      font-size: clamp(0.72rem, 1.6vw, 0.82rem);
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: clamp(0.5rem, 1.4vw, 0.65rem) clamp(1rem, 4vw, 2rem);
-    }
-    .announce i { margin-right: 0.45rem; }
-
-    /* ============ HEADER / UAGE BRAND ============ */
-    .site-header {
-      position: sticky;
-      top: 0;
-      z-index: 60;
-      background: linear-gradient(120deg, var(--deep), var(--deep-2) 55%, #0d4f57);
-      transition: box-shadow 0.3s var(--ease);
-    }
-    .site-header.scrolled { box-shadow: 0 14px 34px -16px rgba(3, 20, 30, 0.6); }
-    .header-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: clamp(0.8rem, 3vw, 2rem);
-      padding-block: clamp(0.7rem, 2vw, 0.95rem);
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.62rem;
-      text-decoration: none;
-    }
-    .brand-mark {
-      width: clamp(40px, 5vw, 46px);
-      aspect-ratio: 1;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--aqua), var(--teal));
-      color: var(--teal-ink);
-      font-family: var(--font-display);
-      font-style: italic;
-      font-weight: 700;
-      font-size: clamp(1.4rem, 3.4vw, 1.6rem);
-      transform: rotate(-6deg);
-      box-shadow: 0 8px 18px -6px rgba(20, 184, 166, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.55);
-    }
-    .brand-word {
-      display: flex;
-      align-items: baseline;
-      font-family: var(--font-display);
-      font-style: italic;
-      font-weight: 600;
-      font-size: clamp(1.55rem, 3.6vw, 1.85rem);
-      letter-spacing: 0.01em;
-      color: #fff;
-      line-height: 1;
-    }
-    .brand-word .dot { color: var(--citrus); }
-    .brand-tag {
-      display: block;
-      font-family: var(--font-body);
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 0.32em;
-      text-transform: uppercase;
-      color: var(--aqua);
-      margin-top: 0.28rem;
-      font-style: normal;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: clamp(0.2rem, 1.6vw, 1.2rem);
-      margin-left: auto;
-    }
-    .nav-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: rgba(255, 255, 255, 0.86);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.94rem;
-      padding: 0.5rem 0.85rem;
-      border-radius: 999px;
-      border: 1px solid transparent;
-      transition: background 0.2s var(--ease), color 0.2s var(--ease), transform 0.2s var(--ease);
-    }
-    .nav-link:hover { background: rgba(255, 255, 255, 0.12); color: #fff; transform: translateY(-1px); }
-    .nav-link i { color: var(--aqua); font-size: 0.92rem; }
-
-    .cart-btn {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      color: #fff;
-      font-weight: 700;
-      font-size: 0.94rem;
-      padding: 0.55rem 1.15rem;
-      border-radius: 999px;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
-      transition: background 0.2s var(--ease), transform 0.2s var(--ease);
-    }
-    .cart-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-1px); }
-    .cart-btn i { color: var(--aqua); }
-    .cart-badge {
-      position: absolute;
-      top: -8px;
-      right: -6px;
-      min-width: 20px;
-      height: 20px;
-      padding: 0 5px;
-      display: grid;
-      place-items: center;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--citrus), #ff8a4d);
-      color: #402a00;
-      font-size: 0.72rem;
-      font-weight: 800;
-      border: 2px solid var(--deep-2);
-    }
-    .cart-badge.pulse { animation: badgePulse 0.45s var(--ease); }
-    @keyframes badgePulse {
-      40% { transform: scale(1.4); }
-    }
-
-    /* ============ HERO CAROUSEL ============ */
-    .hero { padding-top: clamp(1.1rem, 3vw, 2rem); }
-    .hero-carousel {
-      position: relative;
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      box-shadow: var(--shadow-lg);
-      border: 1px solid rgba(255, 255, 255, 0.55);
-    }
-    .carousel-track {
-      display: flex;
-      transition: transform 0.75s var(--ease);
-      will-change: transform;
-    }
-    .carousel-slide {
-      min-width: 100%;
-      min-height: clamp(430px, 48vw, 560px);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: clamp(1.2rem, 4vw, 3rem);
-      flex-wrap: wrap;
-      padding: clamp(1.6rem, 4.5vw, 3.2rem) clamp(1.4rem, 5vw, 3.6rem);
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
-    .slide-1 {
-      background-image: linear-gradient(105deg, rgba(6, 42, 63, 0.94), rgba(10, 58, 84, 0.8) 46%, rgba(13, 148, 136, 0.4)),
-        url('https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=1600&q=80');
-    }
-    .slide-2 {
-      background-image: linear-gradient(105deg, rgba(6, 42, 63, 0.94), rgba(10, 58, 84, 0.8) 46%, rgba(13, 148, 136, 0.4)),
-        url('https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1600&q=80');
-    }
-    .slide-3 {
-      background-image: linear-gradient(105deg, rgba(6, 42, 63, 0.94), rgba(10, 58, 84, 0.8) 46%, rgba(13, 148, 136, 0.4)),
-        url('https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1600&q=80');
-    }
-
-    .slide-copy { flex: 1 1 340px; max-width: 560px; color: #fff; }
-    .kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: clamp(0.72rem, 1.7vw, 0.8rem);
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--aqua);
-      background: rgba(127, 230, 216, 0.14);
-      border: 1px solid rgba(127, 230, 216, 0.35);
-      padding: 0.42rem 0.95rem;
-      border-radius: 999px;
-      backdrop-filter: blur(6px);
-      margin-bottom: clamp(0.8rem, 2vw, 1.2rem);
-    }
-    .slide-copy h2 {
-      font-family: var(--font-display);
-      font-weight: 600;
-      font-size: clamp(2.1rem, 5.4vw, 3.6rem);
-      line-height: 1.05;
-      letter-spacing: -0.01em;
-      color: #fff;
-      text-shadow: 0 4px 18px rgba(3, 20, 30, 0.45);
-      margin-bottom: clamp(0.7rem, 1.8vw, 1.1rem);
-    }
-    .slide-copy h2 em { font-style: italic; color: var(--aqua); }
-    .slide-copy p {
-      font-size: clamp(0.98rem, 1.9vw, 1.12rem);
-      line-height: 1.6;
-      color: rgba(255, 255, 255, 0.92);
-      max-width: 46ch;
-      margin-bottom: clamp(1.1rem, 2.6vw, 1.6rem);
-    }
-    .slide-meta {
-      display: flex;
-      align-items: center;
-      gap: clamp(0.6rem, 2vw, 1rem);
-      flex-wrap: wrap;
-      margin-bottom: clamp(1.2rem, 2.8vw, 1.8rem);
-    }
-    .price-tag {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: clamp(1.35rem, 2.6vw, 1.7rem);
-      color: #fff;
-      background: rgba(255, 176, 32, 0.22);
-      border: 1px solid rgba(255, 176, 32, 0.5);
-      padding: 0.28rem 1.1rem;
-      border-radius: 999px;
-      backdrop-filter: blur(6px);
-    }
-    .slide-rating {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.95);
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      padding: 0.34rem 0.9rem;
-      border-radius: 999px;
-      backdrop-filter: blur(6px);
-    }
-    .slide-rating i { color: var(--star); }
-    .slide-cta { display: flex; gap: clamp(0.6rem, 2vw, 0.9rem); flex-wrap: wrap; }
-
-    .slide-media {
-      flex: 0 1 clamp(260px, 30vw, 350px);
-      position: relative;
-    }
-    .slide-media img {
-      width: 100%;
-      height: clamp(250px, 32vw, 360px);
-      object-fit: cover;
-      border-radius: clamp(16px, 2.4vw, 24px);
-      border: 4px solid rgba(255, 255, 255, 0.55);
-      box-shadow: 0 26px 50px -20px rgba(3, 20, 30, 0.6);
-      display: block;
-      user-select: none;
-      -webkit-user-drag: none;
-    }
-    .media-badge {
-      position: absolute;
-      bottom: 16px;
-      left: 16px;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      background: rgba(6, 42, 63, 0.6);
-      color: #fff;
-      font-size: 0.78rem;
-      font-weight: 700;
-      padding: 0.4rem 0.85rem;
-      border-radius: 999px;
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-    .media-badge i { color: var(--citrus); }
-
-    /* carousel controls */
-    .car-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 8;
-      width: 46px;
-      height: 46px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      background: rgba(6, 42, 63, 0.45);
-      color: #fff;
-      font-size: 1rem;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
-      transition: background 0.2s var(--ease), transform 0.2s var(--ease), scale 0.2s var(--ease);
-    }
-    .car-btn:hover { background: var(--teal); border-color: transparent; scale: 1.08; }
-    .car-prev { left: clamp(0.7rem, 2vw, 1.4rem); }
-    .car-next { right: clamp(0.7rem, 2vw, 1.4rem); }
-
-    .carousel-dots {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 8;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      background: rgba(6, 42, 63, 0.4);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      padding: 9px 16px;
-      border-radius: 999px;
-    }
-    .dot {
-      width: 9px;
-      height: 9px;
-      padding: 0;
-      border: 0;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.5);
-      cursor: pointer;
-      transition: all 0.3s var(--ease);
-    }
-    .dot.active {
-      width: 26px;
-      background: linear-gradient(90deg, var(--aqua), var(--teal));
-      box-shadow: 0 0 12px rgba(127, 230, 216, 0.7);
-    }
-
-    /* ============ BUTTONS ============ */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      border: 0;
-      cursor: pointer;
-      font-family: var(--font-body);
-      font-weight: 700;
-      font-size: 0.96rem;
-      letter-spacing: 0.01em;
-      padding: clamp(0.72rem, 1.8vw, 0.9rem) clamp(1.2rem, 2.6vw, 1.8rem);
-      border-radius: 999px;
-      text-decoration: none;
-      transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease), background 0.18s var(--ease), color 0.18s var(--ease);
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary {
-      background: linear-gradient(135deg, #34d8c6, var(--teal-deep));
-      color: var(--teal-ink);
-      box-shadow: 0 12px 26px -10px rgba(13, 148, 136, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 18px 34px -12px rgba(13, 148, 136, 0.7); }
-    .btn-ghost {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.32);
-      backdrop-filter: blur(6px);
-    }
-    .btn-ghost:hover { background: rgba(255, 255, 255, 0.22); transform: translateY(-2px); }
-    .btn-light {
-      background: #fff;
-      color: var(--deep);
-      box-shadow: 0 14px 30px -12px rgba(3, 20, 30, 0.55);
-    }
-    .btn-light:hover { transform: translateY(-2px); box-shadow: 0 20px 38px -14px rgba(3, 20, 30, 0.6); }
-    .btn-block { width: 100%; }
-
-    /* ============ BENEFITS ============ */
-    .benefits { padding-block: calc(var(--section-y) * 0.55); }
-    .benefits-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
-      gap: clamp(0.9rem, 2.4vw, 1.4rem);
-    }
-    .benefit {
-      display: flex;
-      align-items: center;
-      gap: clamp(0.8rem, 2vw, 1.1rem);
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      padding: clamp(0.95rem, 2.2vw, 1.3rem);
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
-    }
-    .benefit:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-    .benefit-icon {
-      flex: 0 0 auto;
-      width: clamp(42px, 5.4vw, 50px);
-      aspect-ratio: 1;
-      display: grid;
-      place-items: center;
-      border-radius: 15px;
-      background: linear-gradient(135deg, #e6fbf7, #d0f4ee);
-      color: var(--teal-deep);
-      font-size: 1.15rem;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    }
-    .benefit h3 { font-size: 0.95rem; font-weight: 800; color: var(--ink); }
-    .benefit p { font-size: 0.8rem; color: var(--ink-soft); margin-top: 0.15rem; }
-
-    /* ============ PRODUCTS ============ */
-    .products { padding-bottom: var(--section-y); }
-    .section-head {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: clamp(1rem, 3vw, 2rem);
-      flex-wrap: wrap;
-      margin-bottom: clamp(1.6rem, 4vw, 2.6rem);
-    }
-    .eyebrow {
-      display: block;
-      font-size: 0.76rem;
-      font-weight: 800;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--teal-deep);
-      margin-bottom: 0.5rem;
-    }
-    .section-title {
-      font-family: var(--font-display);
-      font-weight: 600;
-      font-size: clamp(1.8rem, 4vw, 2.6rem);
-      line-height: 1.1;
-      color: var(--ink);
-      letter-spacing: -0.01em;
-    }
-    .section-title em { font-style: italic; color: var(--teal-deep); }
-    .section-sub { max-width: 42ch; color: var(--ink-soft); font-size: clamp(0.92rem, 1.8vw, 1.02rem); line-height: 1.6; }
-
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
-      gap: clamp(1.1rem, 3vw, 2rem);
-    }
-    .product-card {
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      padding: clamp(1rem, 2.4vw, 1.5rem);
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.28s var(--ease), box-shadow 0.28s var(--ease), border-color 0.28s var(--ease);
-    }
-    .product-card:hover {
-      transform: translateY(-6px);
-      box-shadow: var(--shadow-lg);
-      border-color: rgba(20, 184, 166, 0.35);
-    }
-    .card-media {
-      position: relative;
-      border-radius: calc(var(--radius-md) - 8px);
-      overflow: hidden;
-      margin-bottom: 0.35rem;
-    }
-    .card-media img {
-      width: 100%;
-      height: clamp(180px, 24vw, 220px);
-      object-fit: cover;
-      display: block;
-      transition: transform 0.6s var(--ease);
-    }
-    .product-card:hover .card-media img { transform: scale(1.05); }
-    .card-flag {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      font-size: 0.7rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: rgba(255, 255, 255, 0.88);
-      color: var(--teal-deep);
-      padding: 0.32rem 0.75rem;
-      border-radius: 999px;
-      backdrop-filter: blur(6px);
-      box-shadow: 0 4px 10px rgba(6, 42, 63, 0.12);
-    }
-    .product-card h3 {
-      font-family: var(--font-display);
-      font-style: italic;
-      font-weight: 600;
-      font-size: clamp(1.25rem, 2.2vw, 1.45rem);
-      color: var(--ink);
-    }
-    .product-card .sub {
-      font-size: 0.88rem;
-      color: var(--ink-soft);
-      line-height: 1.5;
-      flex-grow: 1; /* pushes price + CTA to the bottom so every card aligns */
-    }
-    .price-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.8rem;
-      margin-top: 0.8rem;
-      padding-top: 0.8rem;
-      border-top: 1px dashed var(--line);
-    }
-    .price {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: clamp(1.35rem, 2.4vw, 1.55rem);
-      color: var(--ink);
-    }
-    .stock {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.76rem;
-      font-weight: 700;
-      color: var(--teal-deep);
-    }
-    .stock::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--teal);
-      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18);
-    }
-
-    /* ============ REVIEWS ============ */
-    .reviews { padding-bottom: var(--section-y); }
-    .reviews-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
-      gap: clamp(1.1rem, 3vw, 2rem);
-    }
-    .review {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      padding: clamp(1.2rem, 2.6vw, 1.7rem);
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-      transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
-    }
-    .review:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-    .review-stars { color: var(--star); font-size: 0.85rem; letter-spacing: 0.2em; }
-    .review blockquote {
-      font-size: 0.95rem;
-      line-height: 1.65;
-      color: var(--ink);
-      flex-grow: 1;
-    }
-    .review figcaption { display: flex; align-items: center; gap: 0.7rem; }
-    .avatar {
-      width: 38px;
-      height: 38px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--aqua), var(--teal));
-      color: var(--teal-ink);
-      font-weight: 800;
-      font-size: 0.85rem;
-    }
-    .review figcaption strong { display: block; font-size: 0.88rem; color: var(--ink); }
-    .review figcaption span { font-size: 0.76rem; color: var(--ink-soft); }
-
-    /* ============ CTA BAND ============ */
-    .cta-band { padding-bottom: var(--section-y); }
-    .cta-card {
-      position: relative;
-      overflow: hidden;
-      border-radius: var(--radius-lg);
-      background: linear-gradient(120deg, var(--teal-deep) 0%, var(--deep) 58%, var(--deep-2) 100%);
-      color: #fff;
-      text-align: center;
-      padding: clamp(2.4rem, 7vw, 4.5rem) clamp(1.4rem, 6vw, 3.5rem);
-      box-shadow: var(--shadow-lg);
-    }
-    .cta-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(420px 240px at 12% 20%, rgba(127, 230, 216, 0.25), transparent 60%),
-        radial-gradient(480px 280px at 88% 85%, rgba(255, 176, 32, 0.18), transparent 60%);
-      pointer-events: none;
-    }
-    .cta-card > * { position: relative; }
-    .cta-card h2 {
-      font-family: var(--font-display);
-      font-style: italic;
-      font-weight: 600;
-      font-size: clamp(1.9rem, 4.6vw, 3rem);
-      line-height: 1.08;
-      margin-bottom: clamp(0.7rem, 1.8vw, 1.1rem);
-    }
-    .cta-card p { color: rgba(255, 255, 255, 0.85); max-width: 46ch; margin: 0 auto clamp(1.4rem, 3vw, 2rem); font-size: clamp(0.95rem, 1.8vw, 1.05rem); line-height: 1.6; }
-    .cta-note { display: block; margin-top: 1.1rem; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--aqua); }
-
-    /* ============ FOOTER ============ */
-    footer {
-      margin-top: auto;
-      background: linear-gradient(120deg, var(--deep), var(--deep-2));
-      color: rgba(255, 255, 255, 0.78);
-      padding: clamp(2rem, 5vw, 3.2rem) 0 clamp(1.2rem, 3vw, 1.6rem);
-    }
-    .footer-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: clamp(1rem, 3vw, 2rem);
-      flex-wrap: wrap;
-      padding-bottom: clamp(1.2rem, 3vw, 1.8rem);
-    }
-    .footer-brand p { font-size: 0.9rem; margin-top: 0.5rem; max-width: 34ch; color: rgba(255, 255, 255, 0.7); }
-    .footer-links { display: flex; gap: clamp(0.6rem, 2vw, 1.2rem); flex-wrap: wrap; }
-    .footer-links a {
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.9rem;
-      padding: 0.4rem 0.6rem;
-      border-radius: 999px;
-      transition: color 0.2s var(--ease), background 0.2s var(--ease);
-    }
-    .footer-links a:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
-    .socials { display: flex; gap: 0.6rem; }
-    .socials a {
-      width: 38px;
-      height: 38px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      color: #fff;
-      text-decoration: none;
-      transition: background 0.2s var(--ease), transform 0.2s var(--ease);
-    }
-    .socials a:hover { background: var(--teal); transform: translateY(-2px); }
-    .footer-bottom {
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
-      padding-top: 1.1rem;
-      display: flex;
-      justify-content: space-between;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.55);
-    }
-    .footer-bottom a { color: rgba(255, 255, 255, 0.55); }
-
-    /* ============ TOAST ============ */
-    .toast {
-      position: fixed;
-      bottom: clamp(1rem, 4vh, 1.6rem);
-      left: 50%;
-      transform: translate(-50%, 14px);
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      gap: 0.65rem;
-      background: var(--deep);
-      color: #fff;
-      font-weight: 700;
-      font-size: 0.92rem;
-      padding: 0.85rem 1.5rem;
-      border-radius: 999px;
-      border: 1px solid rgba(127, 230, 216, 0.35);
-      box-shadow: var(--shadow-lg);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
-    }
-    .toast.show { opacity: 1; transform: translate(-50%, 0); }
-    .toast i { color: var(--aqua); font-size: 1.05rem; }
-
-    /* ============ REVEAL ============ */
-    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s var(--ease), transform 0.7s var(--ease); }
-    .reveal.in { opacity: 1; transform: none; }
-    .products .product-card:nth-child(2) { transition-delay: 0.08s; }
-    .products .product-card:nth-child(3) { transition-delay: 0.16s; }
-    .benefits .benefit:nth-child(2) { transition-delay: 0.07s; }
-    .benefits .benefit:nth-child(3) { transition-delay: 0.14s; }
-    .benefits .benefit:nth-child(4) { transition-delay: 0.21s; }
-    .reviews .review:nth-child(2) { transition-delay: 0.08s; }
-    .reviews .review:nth-child(3) { transition-delay: 0.16s; }
-
-    /* ============ RESPONSIVE ============ */
-    @media (max-width: 760px) {
-      .carousel-slide {
-        min-height: auto;
-        flex-direction: column;
-        align-items: flex-start;
-        padding: clamp(1.4rem, 5vw, 2rem) clamp(1.2rem, 4.5vw, 1.6rem) 5.6rem;
-      }
-      .slide-copy { flex: 1 1 auto; max-width: none; }
-      .slide-media { flex: 1 1 auto; width: 100%; }
-      .slide-media img { height: clamp(150px, 42vw, 220px); }
-      .car-btn { top: auto; bottom: 1.15rem; transform: none; }
-      .car-prev { left: 1rem; }
-      .car-next { right: 1rem; }
-      .carousel-dots { bottom: 1.6rem; }
-      .nav-link span { display: none; }
-      .nav-link { padding: 0.5rem 0.65rem; font-size: 1rem; }
-    }
-    @media (max-width: 420px) {
-      .header-inner { justify-content: center; }
-      .brand-tag { display: none; }
-      .cart-btn span { display: none; }
-      .cart-btn { padding: 0.55rem 0.8rem; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      .reveal { opacity: 1; transform: none; transition: none; }
-      .carousel-track { transition: none; }
-      .carousel-slide { min-height: 0; }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-
-  <!-- ANNOUNCEMENT -->
-  <div class="announce"><i class="fas fa-truck-fast"></i>Free delivery on orders over ₦10,000 — code SPARKLE10</div>
-
-  <!-- HEADER: UAGE brand -->
-  <header class="site-header" id="siteHeader">
-    <div class="wrap header-inner">
-      <a class="brand" href="#" aria-label="UAGE home">
-        <span class="brand-mark">U</span>
-        <span class="brand-word">
-          <span>AGE</span><span class="dot">.</span>
-          <span class="brand-tag">Unique Age</span>
-        </span>
-      </a>
-      <nav class="nav-links" aria-label="Primary">
-        <a class="nav-link" href="#products"><i class="fas fa-store"></i><span>Shop</span></a>
-        <a class="nav-link" href="#reviews"><i class="fas fa-star"></i><span>Reviews</span></a>
-      </nav>
-      <button class="cart-btn" type="button" aria-label="Shopping cart">
-        <i class="fas fa-cart-shopping"></i><span>Cart</span>
-        <span class="cart-badge" id="cartCount">0</span>
-      </button>
-    </div>
-  </header>
+<body data-page="home">
 
   <main>
     <!-- HERO CAROUSEL -->
     <section class="hero" aria-label="Featured products">
       <div class="wrap">
-        <div class="hero-carousel" id="carousel" tabindex="0" aria-roledescription="carousel" aria-label="Featured dish soap">
+        <div class="hero-carousel" id="carousel" tabindex="0" aria-roledescription="carousel" aria-label="Featured products">
           <div class="carousel-track" id="carouselTrack">
-            <!-- slide 1 -->
+            <!-- slide 1: dishwash -->
             <div class="carousel-slide slide-1" role="group" aria-label="1 of 3">
               <div class="slide-copy">
-                <span class="kicker"><i class="fas fa-sparkles"></i>Bestseller</span>
+                <span class="kicker"><i class="fas fa-sparkles"></i>Kitchen care</span>
                 <h2>Crystal <em>Clean</em></h2>
-                <p>Grease vanishes on contact — and the fresh citrus scent lingers long after the last rinse.</p>
+                <p>Grease vanishes on contact — and the fresh citrus scent lingers long after the last rinse. From 500ml bottles to 2L family jugs.</p>
                 <div class="slide-meta">
-                  <span class="price-tag">₦4,500</span>
+                  <span class="price-tag">From ₦4,500</span>
                   <span class="slide-rating"><i class="fas fa-star"></i>4.9 · 312 reviews</span>
                 </div>
                 <div class="slide-cta">
-                  <button class="btn btn-primary add-to-cart" type="button" data-name="Crystal Clean" data-price="4500"><i class="fas fa-cart-plus"></i>Add to cart</button>
-                  <a class="btn btn-ghost" href="#products">See the range</a>
+                  <a class="btn btn-primary" href="shop.html?cat=dishwash"><i class="fas fa-cart-plus"></i>Shop dishwash</a>
+                  <a class="btn btn-ghost" href="shop.html">Browse all</a>
                 </div>
               </div>
               <figure class="slide-media">
-                <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80" alt="Crystal Clean dish soap with sparkling cleaning supplies" />
+                <img src="https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=800&q=80" alt="Crystal Clean dish soap bottle beside a kitchen sink" />
                 <figcaption class="media-badge"><i class="fas fa-leaf"></i>Plant-based formula</figcaption>
               </figure>
             </div>
-            <!-- slide 2 -->
+            <!-- slide 2: perfume -->
             <div class="carousel-slide slide-2" role="group" aria-label="2 of 3">
               <div class="slide-copy">
-                <span class="kicker"><i class="fas fa-leaf"></i>New season</span>
-                <h2>Fresh <em>Zest</em></h2>
-                <p>Lemon &amp; lavender power that cuts 100% of grease — gentle on hands, bold on dishes.</p>
+                <span class="kicker"><i class="fas fa-spray-can-sparkles"></i>Signature scents</span>
+                <h2>Oud <em>Royale</em></h2>
+                <p>Smoky oud, amber and saffron in an eau de parfum that lingers all day. Available in 30ml, 50ml and 100ml.</p>
                 <div class="slide-meta">
-                  <span class="price-tag">₦5,200</span>
-                  <span class="slide-rating"><i class="fas fa-star"></i>4.8 · 196 reviews</span>
+                  <span class="price-tag">From ₦14,900</span>
+                  <span class="slide-rating"><i class="fas fa-star"></i>4.9 · 204 reviews</span>
                 </div>
                 <div class="slide-cta">
-                  <button class="btn btn-primary add-to-cart" type="button" data-name="Fresh Zest" data-price="5200"><i class="fas fa-cart-plus"></i>Add to cart</button>
-                  <a class="btn btn-ghost" href="#products">See the range</a>
+                  <a class="btn btn-primary" href="shop.html?cat=perfume"><i class="fas fa-cart-plus"></i>Shop perfumes</a>
+                  <a class="btn btn-ghost" href="shop.html">Browse all</a>
                 </div>
               </div>
               <figure class="slide-media">
-                <img src="https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=800&q=80" alt="Fresh Zest dish soap with soft soap bubbles" />
-                <figcaption class="media-badge"><i class="fas fa-leaf"></i>Lemon &amp; lavender</figcaption>
+                <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80" alt="Oud Royale perfume bottle" />
+                <figcaption class="media-badge"><i class="fas fa-star"></i>Long-lasting EDP</figcaption>
               </figure>
             </div>
-            <!-- slide 3 -->
+            <!-- slide 3: cosmetics -->
             <div class="carousel-slide slide-3" role="group" aria-label="3 of 3">
               <div class="slide-copy">
-                <span class="kicker"><i class="fas fa-water"></i>Gentle care</span>
-                <h2>Silky <em>Foam</em></h2>
-                <p>Cloud-like foam that is tough on oil yet extra gentle on your skin. No harsh residue.</p>
+                <span class="kicker"><i class="fas fa-spa"></i>Body care</span>
+                <h2>Shea <em>Butter</em></h2>
+                <p>Rich whipped shea &amp; cocoa body butter for deep, all-day moisture. Skin that glows, hands that stay soft.</p>
                 <div class="slide-meta">
-                  <span class="price-tag">₦4,900</span>
-                  <span class="slide-rating"><i class="fas fa-star"></i>4.9 · 258 reviews</span>
+                  <span class="price-tag">₦6,500</span>
+                  <span class="slide-rating"><i class="fas fa-star"></i>4.9 · 231 reviews</span>
                 </div>
                 <div class="slide-cta">
-                  <button class="btn btn-primary add-to-cart" type="button" data-name="Silky Foam" data-price="4900"><i class="fas fa-cart-plus"></i>Add to cart</button>
-                  <a class="btn btn-ghost" href="#products">See the range</a>
+                  <a class="btn btn-primary" href="shop.html?cat=cosmetics"><i class="fas fa-cart-plus"></i>Shop cosmetics</a>
+                  <a class="btn btn-ghost" href="shop.html">Browse all</a>
                 </div>
               </div>
               <figure class="slide-media">
-                <img src="https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=800&q=80" alt="Silky Foam dish soap with rich suds" />
-                <figcaption class="media-badge"><i class="fas fa-droplet"></i>Extra mild formula</figcaption>
+                <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80" alt="Shea body butter jar with lotion pump" />
+                <figcaption class="media-badge"><i class="fas fa-heart"></i>Deep moisture</figcaption>
               </figure>
             </div>
           </div>
@@ -907,12 +104,12 @@
           <div><h3>Fast delivery</h3><p>Nationwide in 2–4 days</p></div>
         </div>
         <div class="benefit reveal">
-          <span class="benefit-icon"><i class="fas fa-leaf"></i></span>
-          <div><h3>Plant-based</h3><p>Kind to hands &amp; planet</p></div>
+          <span class="benefit-icon"><i class="fas fa-shield-halved"></i></span>
+          <div><h3>Every size</h3><p>500ml to 2L, priced right</p></div>
         </div>
         <div class="benefit reveal">
-          <span class="benefit-icon"><i class="fas fa-droplet"></i></span>
-          <div><h3>Streak-free</h3><p>Shine without scrubbing</p></div>
+          <span class="benefit-icon"><i class="fas fa-spray-can-sparkles"></i></span>
+          <div><h3>4 categories</h3><p>Dish, body, scent &amp; home</p></div>
         </div>
         <div class="benefit reveal">
           <span class="benefit-icon"><i class="fas fa-medal"></i></span>
@@ -921,60 +118,56 @@
       </div>
     </section>
 
-    <!-- PRODUCTS -->
-    <section class="products" id="products">
+    <!-- CATEGORIES -->
+    <section class="categories" id="categories">
       <div class="wrap">
         <div class="section-head reveal">
           <div>
-            <span class="eyebrow">Shop the range</span>
-            <h2 class="section-title">Our <em>Dishwash</em></h2>
+            <span class="eyebrow">What are you shopping for?</span>
+            <h2 class="section-title">Browse by <em>category</em></h2>
           </div>
-          <p class="section-sub">Three formulas, one promise: spotless dishes without the extra scrub. Every bottle is 500ml of concentrated power.</p>
+          <a class="link-more" href="shop.html">Shop everything <i class="fas fa-arrow-right"></i></a>
         </div>
-
-        <div class="product-grid">
-          <article class="product-card reveal" data-name="Crystal Clean" data-price="4500">
-            <div class="card-media">
-              <img src="https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=800&q=80" alt="Crystal Clean dish soap with sparkling soap bubbles" loading="lazy" />
-              <span class="card-flag">Bestseller</span>
-            </div>
-            <h3>Crystal Clean</h3>
-            <p class="sub">Grease destroyer · fresh citrus scent · 500ml</p>
-            <div class="price-row">
-              <span class="price">₦4,500</span>
-              <span class="stock">In stock</span>
-            </div>
-            <button class="btn btn-primary btn-block add-to-cart" type="button" data-name="Crystal Clean" data-price="4500"><i class="fas fa-cart-plus"></i>Add to cart</button>
-          </article>
-
-          <article class="product-card reveal" data-name="Fresh Zest" data-price="5200">
-            <div class="card-media">
-              <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80" alt="Fresh Zest dish soap with cleaning supplies" loading="lazy" />
-              <span class="card-flag">Lemon &amp; lavender</span>
-            </div>
-            <h3>Fresh Zest</h3>
-            <p class="sub">100% grease cut · botanical scent · 500ml</p>
-            <div class="price-row">
-              <span class="price">₦5,200</span>
-              <span class="stock">In stock</span>
-            </div>
-            <button class="btn btn-primary btn-block add-to-cart" type="button" data-name="Fresh Zest" data-price="5200"><i class="fas fa-cart-plus"></i>Add to cart</button>
-          </article>
-
-          <article class="product-card reveal" data-name="Silky Foam" data-price="4900">
-            <div class="card-media">
-              <img src="https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=800&q=80" alt="Silky Foam dish soap with rich suds" loading="lazy" />
-              <span class="card-flag">Gentle care</span>
-            </div>
-            <h3>Silky Foam</h3>
-            <p class="sub">Mild on hands · tough on oil · 500ml</p>
-            <div class="price-row">
-              <span class="price">₦4,900</span>
-              <span class="stock">In stock</span>
-            </div>
-            <button class="btn btn-primary btn-block add-to-cart" type="button" data-name="Silky Foam" data-price="4900"><i class="fas fa-cart-plus"></i>Add to cart</button>
-          </article>
+        <div class="cat-grid">
+          <a class="cat-tile cat-dishwash reveal" href="shop.html?cat=dishwash">
+            <span class="cat-icon"><i class="fas fa-soap"></i></span>
+            <h3>Dishwash Liquid</h3>
+            <p>500ml · 750ml · 1L · 2L jugs</p>
+            <span class="cat-cta">Shop now <i class="fas fa-arrow-right"></i></span>
+          </a>
+          <a class="cat-tile cat-cosmetics reveal" href="shop.html?cat=cosmetics">
+            <span class="cat-icon"><i class="fas fa-spa"></i></span>
+            <h3>Body Cosmetics</h3>
+            <p>Butters, scrubs &amp; lotions</p>
+            <span class="cat-cta">Shop now <i class="fas fa-arrow-right"></i></span>
+          </a>
+          <a class="cat-tile cat-perfume reveal" href="shop.html?cat=perfume">
+            <span class="cat-icon"><i class="fas fa-spray-can-sparkles"></i></span>
+            <h3>Perfumes</h3>
+            <p>30ml · 50ml · 100ml EDP</p>
+            <span class="cat-cta">Shop now <i class="fas fa-arrow-right"></i></span>
+          </a>
+          <a class="cat-tile cat-air reveal" href="shop.html?cat=air">
+            <span class="cat-icon"><i class="fas fa-wind"></i></span>
+            <h3>Air Fresheners</h3>
+            <p>Mists, candles &amp; car scents</p>
+            <span class="cat-cta">Shop now <i class="fas fa-arrow-right"></i></span>
+          </a>
         </div>
+      </div>
+    </section>
+
+    <!-- FEATURED PRODUCTS -->
+    <section class="products" id="featured">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div>
+            <span class="eyebrow">Customer favourites</span>
+            <h2 class="section-title">Bestsellers, <em>delivered</em></h2>
+          </div>
+          <a class="link-more" href="shop.html">View full shop <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="product-grid" id="featuredGrid"><!-- cards injected by app.js --></div>
       </div>
     </section>
 
@@ -984,7 +177,7 @@
         <div class="section-head reveal">
           <div>
             <span class="eyebrow">Social proof</span>
-            <h2 class="section-title">Loved by <em>kitchens</em></h2>
+            <h2 class="section-title">Loved by <em>homes</em></h2>
           </div>
           <p class="section-sub">Real reviews from customers who swapped scrubbing for pouring.</p>
         </div>
@@ -992,17 +185,17 @@
         <div class="reviews-grid">
           <figure class="review reveal">
             <div class="review-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-            <blockquote>"My plates squeak clean now — the lemon scent stays in the kitchen for hours. Total game changer."</blockquote>
+            <blockquote>"My plates squeak clean now — and I finally found a dishwash that doesn't dry out my hands. The 2L jug lasts forever."</blockquote>
             <figcaption><span class="avatar">AO</span><span><strong>Amaka O.</strong><span>Lagos</span></span></figcaption>
           </figure>
           <figure class="review reveal">
             <div class="review-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-            <blockquote>"Silky Foam is seriously gentle on my hands. I wash dishes all day at the restaurant and no more cracks."</blockquote>
+            <blockquote>"Ordered the Oud Royale perfume and the shea butter together — both smell incredible and delivery took 3 days. Will be back."</blockquote>
             <figcaption><span class="avatar">TB</span><span><strong>Tunde B.</strong><span>Abuja</span></span></figcaption>
           </figure>
           <figure class="review reveal">
             <div class="review-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-            <blockquote>"Ordered on Tuesday, arrived Thursday. Packaging was neat and the streak-free shine is no joke."</blockquote>
+            <blockquote>"The citrus room mist is a game changer — my kitchen smells fresh even after cooking. Packaging was neat and delivery on time."</blockquote>
             <figcaption><span class="avatar">CE</span><span><strong>Chidinma E.</strong><span>Port Harcourt</span></span></figcaption>
           </figure>
         </div>
@@ -1013,152 +206,16 @@
     <section class="cta-band" aria-label="Call to action">
       <div class="wrap">
         <div class="cta-card reveal">
-          <h2>Make every dish sparkle.</h2>
-          <p>Join thousands of Nigerian kitchens that ditched the elbow grease. Choose your formula — delivered to your door in days.</p>
-          <a class="btn btn-light" href="#products"><i class="fas fa-basket-shopping"></i>Shop bestsellers</a>
+          <h2>One shop. Every kind of fresh.</h2>
+          <p>Dishwash in every size, body care that glows, scents that turn heads and homes that always smell inviting.</p>
+          <a class="btn btn-light" href="shop.html"><i class="fas fa-basket-shopping"></i>Shop the collection</a>
           <span class="cta-note"><i class="fas fa-truck-fast"></i> Free delivery over ₦10,000</span>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="wrap">
-      <div class="footer-top">
-        <div class="footer-brand">
-          <a class="brand" href="#">
-            <span class="brand-mark">U</span>
-            <span class="brand-word"><span>AGE</span><span class="dot">.</span></span>
-          </a>
-          <p>Clean dishes, happy moments — plant-based dish soap made for Nigerian kitchens.</p>
-        </div>
-        <nav class="footer-links" aria-label="Footer">
-          <a href="#products">Shop</a>
-          <a href="#benefits">Why UAGE</a>
-          <a href="#reviews">Reviews</a>
-        </nav>
-        <div class="socials">
-          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
-          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <span>© 2026 Unique Age. All rights reserved.</span>
-        <span>Photography via <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a></span>
-      </div>
-    </div>
-  </footer>
-
-  <!-- TOAST -->
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <script>
-    (function () {
-      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      /* ---- sticky header shadow ---- */
-      var header = document.getElementById('siteHeader');
-      function onScroll() { header.classList.toggle('scrolled', window.scrollY > 10); }
-      onScroll();
-      window.addEventListener('scroll', onScroll, { passive: true });
-
-      /* ---- carousel ---- */
-      var track = document.getElementById('carouselTrack');
-      var slides = Array.prototype.slice.call(track.children);
-      var dots = Array.prototype.slice.call(document.querySelectorAll('.dot'));
-      var prevBtn = document.getElementById('prevBtn');
-      var nextBtn = document.getElementById('nextBtn');
-      var carousel = document.getElementById('carousel');
-      var index = 0;
-      var total = slides.length;
-
-      function update(i) {
-        index = (i + total) % total;
-        track.style.transform = 'translateX(-' + index * 100 + '%)';
-        dots.forEach(function (dot, di) {
-          dot.classList.toggle('active', di === index);
-          dot.setAttribute('aria-current', di === index ? 'true' : 'false');
-        });
-      }
-      function next() { update(index + 1); }
-      function prev() { update(index - 1); }
-
-      nextBtn.addEventListener('click', next);
-      prevBtn.addEventListener('click', prev);
-      dots.forEach(function (dot) {
-        dot.addEventListener('click', function () { update(Number(dot.dataset.index)); });
-      });
-
-      /* keyboard */
-      carousel.addEventListener('keydown', function (e) {
-        if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
-        if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
-      });
-
-      /* swipe (pointer events) */
-      var startX = null;
-      carousel.addEventListener('pointerdown', function (e) { startX = e.clientX; stopAuto(); });
-      carousel.addEventListener('pointerup', function (e) {
-        if (startX === null) return;
-        var dx = e.clientX - startX;
-        if (Math.abs(dx) > 45) { dx > 0 ? prev() : next(); }
-        startX = null;
-        startAuto();
-      });
-      carousel.addEventListener('pointercancel', function () { startX = null; startAuto(); });
-
-      /* autoplay (paused on hover / focus / touch) */
-      var timer = null;
-      function startAuto() {
-        if (prefersReduced || timer) return;
-        timer = setInterval(next, 5500);
-      }
-      function stopAuto() { clearInterval(timer); timer = null; }
-      carousel.addEventListener('mouseenter', stopAuto);
-      carousel.addEventListener('mouseleave', startAuto);
-      carousel.addEventListener('focusin', stopAuto);
-      carousel.addEventListener('focusout', startAuto);
-      startAuto();
-
-      /* ---- add to cart + badge pulse + toast ---- */
-      var badge = document.getElementById('cartCount');
-      var toast = document.getElementById('toast');
-      var count = 0;
-      var toastTimer = null;
-
-      document.querySelectorAll('.add-to-cart').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          count += 1;
-          badge.textContent = count;
-          badge.classList.remove('pulse');
-          void badge.offsetWidth; /* restart animation */
-          badge.classList.add('pulse');
-          var name = btn.dataset.name || 'Dishwash';
-          toast.innerHTML = '<i class="fas fa-circle-check"></i> ' + name + ' added to cart';
-          toast.classList.add('show');
-          clearTimeout(toastTimer);
-          toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2200);
-        });
-      });
-
-      /* ---- reveal on scroll ---- */
-      var reveals = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
-      if (prefersReduced || !('IntersectionObserver' in window)) {
-        reveals.forEach(function (el) { el.classList.add('in'); });
-      } else {
-        var io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('in');
-              io.unobserve(entry.target);
-            }
-          });
-        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-        reveals.forEach(function (el) { io.observe(el); });
-      }
-    })();
-  </script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

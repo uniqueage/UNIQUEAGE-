@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up — UNIQUE AGE · UAGE</title>
+  <meta name="description" content="Create your UAGE account to track orders, save your cart and check out faster." />
+  <meta name="theme-color" content="#062a3f" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%AB%A7%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="account">
+
+  <main>
+    <section class="auth-section">
+      <div class="wrap">
+        <div class="auth-layout">
+          <div class="auth-side">
+            <span class="eyebrow">Join the family</span>
+            <h2>Fresh starts begin with a <em>UAGE account</em></h2>
+            <p>Sign up in seconds to track every order, keep your cart across visits and check out faster next time.</p>
+            <div class="auth-perks">
+              <div class="auth-perk"><i class="fas fa-circle-check"></i><div><strong>Order tracking</strong><span>See your order history and totals in one place.</span></div></div>
+              <div class="auth-perk"><i class="fas fa-cart-shopping"></i><div><strong>Saved cart</strong><span>Your cart follows you around — no sign-in needed to shop.</span></div></div>
+              <div class="auth-perk"><i class="fas fa-gift"></i><div><strong>Members' offers</strong><span>Early access to new scents and seasonal deals.</span></div></div>
+              <div class="auth-perk"><i class="fas fa-truck-fast"></i><div><strong>Faster checkout</strong><span>Your details are ready — just tap and go.</span></div></div>
+            </div>
+          </div>
+
+          <div class="auth-card">
+            <div class="auth-tabs" role="tablist">
+              <button class="auth-tab active" type="button" data-pane="signup" role="tab">Sign up</button>
+              <button class="auth-tab" type="button" data-pane="login" role="tab">Sign in</button>
+            </div>
+
+            <!-- sign up -->
+            <form id="signupForm" novalidate>
+              <div class="form-field">
+                <label for="suName">Full name</label>
+                <input class="form-input" id="suName" name="name" type="text" placeholder="e.g. Amaka Okafor" autocomplete="name" />
+                <div class="form-hint"></div>
+              </div>
+              <div class="form-field">
+                <label for="suEmail">Email address</label>
+                <input class="form-input" id="suEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" />
+                <div class="form-hint"></div>
+              </div>
+              <div class="form-field">
+                <label for="suPass">Password</label>
+                <input class="form-input" id="suPass" name="password" type="password" placeholder="At least 6 characters" autocomplete="new-password" />
+                <div class="form-hint"></div>
+              </div>
+              <div class="form-field">
+                <label for="suConfirm">Confirm password</label>
+                <input class="form-input" id="suConfirm" name="confirm" type="password" placeholder="Repeat your password" autocomplete="new-password" />
+                <div class="form-hint"></div>
+              </div>
+              <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-user-plus"></i>Create account</button>
+              <p class="form-note">Demo store — accounts are saved in this browser only. Already have one? <a href="#" data-switch="login">Sign in</a></p>
+            </form>
+
+            <!-- login -->
+            <form id="loginForm" style="display:none" novalidate>
+              <div class="form-field">
+                <label for="liEmail">Email address</label>
+                <input class="form-input" id="liEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" />
+                <div class="form-hint"></div>
+              </div>
+              <div class="form-field">
+                <label for="liPass">Password</label>
+                <input class="form-input" id="liPass" name="password" type="password" placeholder="Your password" autocomplete="current-password" />
+                <div class="form-hint"></div>
+              </div>
+              <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-right-to-bracket"></i>Sign in</button>
+              <p class="form-note">New to UAGE? <a href="#" data-switch="signup">Create an account</a></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

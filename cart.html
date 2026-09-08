@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Cart — UNIQUE AGE · UAGE</title>
+  <meta name="description" content="Review your UAGE cart — dishwash, body cosmetics, perfumes and air fresheners, ready to check out." />
+  <meta name="theme-color" content="#062a3f" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%AB%A7%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="cart">
+
+  <main>
+    <section class="cart-page">
+      <div class="wrap">
+        <div class="page-hero">
+          <div>
+            <span class="crumb"><i class="fas fa-cart-shopping"></i>Cart</span>
+            <h1>Your <em>cart</em></h1>
+            <p>Review what's inside, adjust quantities and check out in a few taps. Your cart is saved in this browser.</p>
+          </div>
+          <a class="btn btn-light" href="shop.html"><i class="fas fa-store"></i>Keep shopping</a>
+        </div>
+
+        <!-- empty state -->
+        <div class="empty-state" id="cartEmpty" style="margin-top: var(--section-y)">
+          <i class="fas fa-cart-arrow-down"></i>
+          <h3>Your cart is empty</h3>
+          <p>Looks like you haven't added anything yet. Let's fix that.</p>
+          <a class="btn btn-primary" href="shop.html"><i class="fas fa-store"></i>Browse the shop</a>
+        </div>
+
+        <!-- checkout success -->
+        <div class="empty-state" id="checkoutDone" style="display:none; margin-top: var(--section-y)"></div>
+
+        <div class="cart-layout" style="margin-top: var(--section-y)">
+          <div class="cart-items" id="cartItems"><!-- items injected by app.js --></div>
+
+          <aside class="cart-summary" id="cartSummary">
+            <h3><i class="fas fa-receipt" style="color:var(--teal); margin-right:.4rem"></i>Order summary</h3>
+            <div class="sum-row"><span>Subtotal</span><span id="sumSubtotal">₦0</span></div>
+            <div class="sum-row"><span>Discount</span><span id="sumDiscount">—</span></div>
+            <div class="sum-row"><span>Delivery</span><span id="sumDelivery">—</span></div>
+            <div class="sum-row total"><span>Total</span><span id="sumTotal">₦0</span></div>
+
+            <div class="promo-row">
+              <input class="promo-input" id="promoInput" type="text" placeholder="Promo code (try SPARKLE10)" aria-label="Promo code" />
+              <button class="btn btn-dark btn-sm" id="promoApply" type="button">Apply</button>
+            </div>
+            <div class="promo-msg" id="promoMsg"></div>
+
+            <button class="btn btn-primary btn-block" id="checkoutBtn" type="button" style="margin-top:1rem">
+              <i class="fas fa-lock"></i>Checkout · <span id="checkoutTotal">₦0</span>
+            </button>
+
+            <p class="delivery-note"><i class="fas fa-truck-fast"></i>Free delivery on orders over ₦10,000. Delivery takes 2–4 days nationwide.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

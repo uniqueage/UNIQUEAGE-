@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Account — UNIQUE AGE · UAGE</title>
+  <meta name="description" content="Your UAGE account — profile, order history and total spend." />
+  <meta name="theme-color" content="#062a3f" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%AB%A7%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="account">
+
+  <main>
+    <section class="account-page">
+      <div class="wrap">
+        <div class="page-hero">
+          <div>
+            <span class="crumb"><i class="fas fa-user"></i>Account</span>
+            <h1>My <em>account</em></h1>
+            <p>Your profile, order history and shopping stats — all in one place.</p>
+          </div>
+          <a class="btn btn-light" href="shop.html"><i class="fas fa-store"></i>Continue shopping</a>
+        </div>
+
+        <!-- signed out -->
+        <div class="empty-state" id="accountSignedOut" style="display:none; margin-top: var(--section-y)">
+          <i class="fas fa-user-lock"></i>
+          <h3>You're not signed in</h3>
+          <p>Create a free account to track your orders and check out faster.</p>
+          <a class="btn btn-primary" href="signup.html"><i class="fas fa-user-plus"></i>Sign up / Sign in</a>
+        </div>
+
+        <!-- signed in -->
+        <div class="account-grid" id="accountSignedIn" style="display:none; margin-top: var(--section-y)">
+          <div class="account-card">
+            <div class="profile-head">
+              <div class="profile-avatar" id="accountAvatar">U</div>
+              <h3 id="accountName">—</h3>
+              <p id="accountEmail">—</p>
+            </div>
+            <div class="profile-stats">
+              <div class="stat"><strong id="accountOrderCount">0</strong><span>Orders</span></div>
+              <div class="stat"><strong id="accountTotalSpent">₦0</strong><span>Total spent</span></div>
+            </div>
+            <nav class="account-menu">
+              <a href="shop.html"><i class="fas fa-store"></i>Continue shopping</a>
+              <a href="cart.html"><i class="fas fa-cart-shopping"></i>View cart</a>
+              <button class="account-menu signout" id="signoutBtn" type="button" style="border:0; background:transparent; font-family:inherit; font-weight:700; font-size:.92rem; cursor:pointer; display:flex; align-items:center; gap:.7rem; width:100%">
+                <i class="fas fa-right-from-bracket"></i>Sign out
+              </button>
+            </nav>
+          </div>
+
+          <div class="account-card">
+            <div class="orders-head">
+              <h3>Order history</h3>
+              <span class="ord-date" id="accountJoined">—</span>
+            </div>
+            <div id="ordersList"><!-- orders injected by app.js --></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

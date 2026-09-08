@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop — UNIQUE AGE · UAGE</title>
+  <meta name="description" content="Shop UAGE — dishwash liquid in 500ml to 2L sizes, body cosmetics, perfumes and air fresheners with prices." />
+  <meta name="theme-color" content="#062a3f" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%AB%A7%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="shop">
+
+  <main>
+    <section style="padding-bottom: var(--section-y)">
+      <div class="wrap">
+        <div class="page-hero">
+          <div>
+            <span class="crumb"><i class="fas fa-store"></i>Shop</span>
+            <h1>Everything <em>fresh</em>, in every size</h1>
+            <p>Dishwash from 500ml bottles to 2L family jugs, body cosmetics, perfumes and air fresheners — filter, compare sizes and add straight to your cart.</p>
+          </div>
+          <a class="btn btn-light" href="cart.html"><i class="fas fa-cart-shopping"></i>View cart</a>
+        </div>
+
+        <div class="shop-toolbar">
+          <div class="filter-tabs" id="filterTabs"><!-- tabs injected by app.js --></div>
+          <div class="tool-actions">
+            <div class="search-box">
+              <i class="fas fa-magnifying-glass"></i>
+              <input class="search-input" id="shopSearch" type="search" placeholder="Search products…" aria-label="Search products" />
+            </div>
+            <select class="sort-select" id="shopSort" aria-label="Sort products">
+              <option value="featured">Sort: Featured</option>
+              <option value="price-asc">Price: Low → High</option>
+              <option value="price-desc">Price: High → Low</option>
+              <option value="rating">Top rated</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="result-count" id="resultCount"></div>
+        <div class="product-grid" id="shopGrid"><!-- cards injected by app.js --></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
