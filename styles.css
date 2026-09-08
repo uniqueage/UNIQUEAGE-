@@ -86,48 +86,43 @@ section[id] { scroll-margin-top: 96px; }
 
 .brand {
   display: inline-flex;
-  align-items: center;
-  gap: 0.62rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
   text-decoration: none;
-}
-.brand-mark {
-  width: clamp(40px, 5vw, 46px);
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--aqua), var(--teal));
-  color: var(--teal-ink);
-  font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 700;
-  font-size: clamp(1.4rem, 3.4vw, 1.6rem);
-  transform: rotate(-6deg);
-  box-shadow: 0 8px 18px -6px rgba(20, 184, 166, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  line-height: 1;
 }
 .brand-word {
-  display: flex;
+  display: inline-flex;
   align-items: baseline;
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 600;
-  font-size: clamp(1.55rem, 3.6vw, 1.85rem);
-  letter-spacing: 0.01em;
+  font-size: clamp(1.6rem, 3.8vw, 2.05rem);
+  letter-spacing: 0.015em;
   color: #fff;
-  line-height: 1;
+  line-height: 0.95;
+}
+.brand-u {
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--aqua), var(--teal));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 .brand-word .dot { color: var(--citrus); }
-.brand-tag {
-  display: block;
+.brand-sub {
   font-family: var(--font-body);
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.32em;
+  font-size: clamp(0.56rem, 1.4vw, 0.62rem);
+  font-weight: 800;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--aqua);
-  margin-top: 0.28rem;
   font-style: normal;
+  opacity: 0.92;
 }
+@media (max-width: 420px) { .brand-sub { display: none; } }
 
 .nav-links {
   display: flex;

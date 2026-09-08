@@ -104,10 +104,9 @@
       '<div class="announce"><i class="fas fa-truck-fast"></i>Free delivery on orders over ₦10,000 — code SPARKLE10</div>' +
       '<header class="site-header" id="siteHeader">' +
         '<div class="wrap header-inner">' +
-          '<a class="brand" href="index.html" aria-label="UAGE home">' +
-            '<span class="brand-mark">U</span>' +
-            '<span class="brand-word"><span>AGE</span><span class="dot">.</span>' +
-            '<span class="brand-tag">Unique Age</span></span>' +
+          '<a class="brand" href="index.html" aria-label="UAGE — Unique Age home">' +
+            '<span class="brand-word"><span class="brand-u">U</span>AGE<span class="dot">.</span></span>' +
+            '<span class="brand-sub">Unique Age</span>' +
           "</a>" +
           '<nav class="nav-links" id="navLinks" aria-label="Primary">' + headerHtml + "</nav>" +
           '<button class="hamburger" id="hamburger" type="button" aria-label="Open menu" aria-expanded="false">' +
@@ -117,14 +116,18 @@
             '<span class="cart-badge" id="cartCount">' + count + "</span></a>" +
         "</div>" +
       "</header>" +
-      '<nav class="bottom-nav" aria-label="Quick tools">' + navHtml + "</nav>" +
-      "<footer>" +
+      '<nav class="bottom-nav" aria-label="Quick tools">' + navHtml + "</nav>";
+
+    document.body.insertAdjacentHTML("afterbegin", shell.innerHTML);
+
+    var footer = document.createElement("footer");
+    footer.innerHTML =
         '<div class="wrap">' +
           '<div class="footer-top">' +
             '<div class="footer-brand">' +
-              '<a class="brand" href="index.html">' +
-                '<span class="brand-mark">U</span>' +
-                '<span class="brand-word"><span>AGE</span><span class="dot">.</span></span></a>' +
+              '<a class="brand" href="index.html" aria-label="UAGE home">' +
+                '<span class="brand-word"><span class="brand-u">U</span>AGE<span class="dot">.</span></span>' +
+                '<span class="brand-sub">Unique Age</span></a>' +
               "<p>Clean dishes, happy moments — dish care, body care and home fragrance for every home.</p>" +
             "</div>" +
             '<div class="footer-cols">' +
@@ -150,10 +153,8 @@
             "<span>© 2026 Unique Age. All rights reserved.</span>" +
             '<span>Photography via <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a></span>' +
           "</div>" +
-        "</div>" +
-      "</footer>";
-
-    document.body.insertAdjacentHTML("afterbegin", shell.innerHTML);
+        "</div>";
+    document.body.appendChild(footer);
   }
 
   function updateBadges() {
