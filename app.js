@@ -30,6 +30,22 @@
     return getCart().reduce(function (sum, item) { return sum + (item.qty || 1); }, 0);
   }
 
+  function computeTotals(cart) {
+    var sub = cart.reduce(function (s, i) { return s + (i.price || 0) * i.qty; }, 0);
+    var promo = read(PROMO_KEY, null);
+    var discount = promo ? Math.round(sub * 0.1) : 0;
+    var delivery = sub - discount > 0 && sub - discount < 10000 ? 1500 : 0;
+    return { sub: sub, discount: discount, delivery: delivery, total: sub - discount + delivery };
+  }
+
+  function setFieldError(input, msg) {
+    if (!input) return;
+    var hint = input.parentElement ? input.parentElement.querySelector(".form-hint") : null;
+    if (!hint) return;
+    if (msg) { input.classList.add("err"); hint.textContent = msg; hint.classList.add("show"); }
+    else { input.classList.remove("err"); hint.classList.remove("show"); }
+  }
+
   /* ---------- toast ---------- */
   var toastEl = null;
   function showToast(msg, icon) {
@@ -80,7 +96,7 @@
     }).join("");
 
     var footerCats = D.categories.map(function (c) {
-      return '<a href="shop.html?cat=' + c.slug + '">' + c.name + "</a>";
+      return '<a href="category.html?cat=' + c.slug + '">' + c.name + "</a>";
     }).join("");
 
     var shell = document.createElement("div");
@@ -119,9 +135,9 @@
                 '<a href="account.html">My account</a>' +
               "</div>" +
               '<div class="footer-col"><h4>Company</h4>' +
-                '<a href="index.html#benefits">Why UAGE</a>' +
-                '<a href="index.html#reviews">Reviews</a>' +
-                '<a href="index.html#featured">Bestsellers</a>' +
+                '<a href="about.html">About us</a>' +
+                '<a href="faq.html">FAQ</a>' +
+                '<a href="contact.html">Contact</a>' +
               "</div>" +
             "</div>" +
             '<div class="socials">' +
@@ -460,6 +476,159 @@
     renderPrice();
   }
 
+  /* ---------- category page ---------- */
+  function initCategory() {
+    var grid = document.getElementById("catGrid");
+    if (!grid) return;
+    var params = new URLSearchParams(window.location.search);
+    var slug = params.get("cat") || "dishwash";
+    var cat = D.getCategory(slug);
+    if (!cat) {
+      grid.innerHTML = '<div class="empty-state"><i class="fas fa-triangle-exclamation"></i>' +
+        "<h3>Category not found</h3><p>The category you're looking for doesn't exist.</p>" +
+        '<a class="btn btn-primary" href="shop.html"><i class="fas fa-store"></i>Back to shop</a></div>';
+      return;
+    }
+    document.title = cat.name + " — UNIQUE AGE · UAGE";
+
+    var heroLines = {
+      dishwash: "Grease-busting, plant-based dishwash in 500ml, 750ml, 1L and 2L sizes — pick the size that fits your kitchen.",
+      cosmetics: "Body butters, scrubs, washes and creams for deep, long-lasting moisture on every skin type.",
+      perfume: "Long-lasting eau de parfum in 30ml, 50ml and 100ml — from fresh daytime scents to bold evening statements.",
+      air: "Room mists, candles and car fresheners that neutralise odours and keep every space inviting."
+    };
+
+    var hero = document.getElementById("catHero");
+    if (hero) {
+      hero.className = "cat-hero cat-bg-" + cat.slug;
+      hero.innerHTML = '<div>' +
+        '<span class="crumb"><i class="fas ' + cat.icon + '"></i>' + cat.tag + "</span>" +
+        "<h1>Shop <em>" + cat.name + "</em></h1>" +
+        "<p>" + (heroLines[cat.slug] || cat.blurb) + "</p>" +
+        '<span class="cat-chip"><i class="fas fa-bag-shopping"></i>' + cat.blurb + "</span>" +
+      "</div>" +
+      '<div class="cat-hero-icon"><i class="fas ' + cat.icon + '"></i></div>';
+    }
+    var eyebrow = document.getElementById("catEyebrow");
+    if (eyebrow) eyebrow.textContent = "Browse " + cat.name;
+    var title = document.getElementById("catTitle");
+    if (title) title.innerHTML = "The <em>" + cat.name + "</em> collection";
+
+    var list = D.byCategory(cat.slug);
+    grid.innerHTML = list.map(cardHtml).join("");
+    bindCards(grid);
+    observeReveals();
+  }
+
+  /* ---------- checkout page ---------- */
+  function initCheckout() {
+    var form = document.getElementById("checkoutForm");
+    if (!form) return;
+    var empty = document.getElementById("coEmpty");
+    var layout = document.getElementById("coLayout");
+    var cart = getCart();
+    if (!cart.length) {
+      if (empty) empty.style.display = "";
+      if (layout) layout.style.display = "none";
+      return;
+    }
+
+    function setText(id, html) {
+      var el = document.getElementById(id);
+      if (el) el.innerHTML = html;
+    }
+    function renderSummary() {
+      var totals = computeTotals(cart);
+      var linesEl = document.getElementById("coLines");
+      if (linesEl) {
+        linesEl.innerHTML = cart.map(function (i) {
+          var p = D.getProduct(i.id);
+          return '<div class="cart-line"><span>' + (p ? p.name : i.id) +
+            (i.size ? " <small>(" + i.size + ")</small>" : "") + " × " + i.qty + "</span><span>" +
+            D.format((i.price || 0) * i.qty) + "</span></div>";
+        }).join("");
+      }
+      setText("coSubtotal", D.format(totals.sub));
+      setText("coDiscount", totals.discount ? '<span class="disc">−' + D.format(totals.discount) + "</span>" : "—");
+      setText("coDelivery", totals.delivery ? D.format(totals.delivery) : '<span class="free">Free</span>');
+      setText("coTotalSum", D.format(totals.total));
+      setText("coTotal", D.format(totals.total));
+    }
+    renderSummary();
+
+    document.querySelectorAll(".payment-option input").forEach(function (radio) {
+      radio.addEventListener("change", function () {
+        document.querySelectorAll(".payment-option").forEach(function (opt) {
+          opt.classList.toggle("selected", opt.querySelector("input").checked);
+        });
+      });
+    });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = form.name.value.trim();
+      var phone = form.phone.value.trim();
+      var email = form.email.value.trim();
+      var address = form.address.value.trim();
+      var city = form.city.value.trim();
+      var digits = phone.replace(/\D/g, "");
+      var ok = true;
+      setFieldError(form.name, name.length < 2 ? "Please enter your full name." : null); if (name.length < 2) ok = false;
+      setFieldError(form.phone, digits.length < 10 ? "Enter a valid phone number." : null); if (digits.length < 10) ok = false;
+      setFieldError(form.email, !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) ? "Enter a valid email address." : null); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) ok = false;
+      setFieldError(form.address, address.length < 5 ? "Enter your delivery address." : null); if (address.length < 5) ok = false;
+      setFieldError(form.city, city.length < 2 ? "Enter your city." : null); if (city.length < 2) ok = false;
+      if (!ok) return;
+
+      var totals = computeTotals(cart);
+      var order = {
+        id: "UAGE-" + Date.now().toString().slice(-6),
+        date: new Date().toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }),
+        items: cart.map(function (i) {
+          var p = D.getProduct(i.id);
+          return { name: p ? p.name : i.id, size: i.size, qty: i.qty, price: i.price };
+        }),
+        total: totals.total
+      };
+      var orders = getOrders();
+      orders.unshift(order);
+      write(ORDERS_KEY, orders);
+      saveCart([]);
+      localStorage.removeItem(PROMO_KEY);
+
+      if (layout) layout.style.display = "none";
+      var success = document.getElementById("coSuccess");
+      if (success) {
+        success.classList.add("show");
+        var t = document.getElementById("coSuccessTitle");
+        if (t) t.textContent = "Order " + order.id + " placed!";
+        var m = document.getElementById("coSuccessMsg");
+        if (m) m.textContent = "Thanks " + name.split(" ")[0] + " — we'll call " + phone + " to confirm delivery to " + city + " soon.";
+      }
+      showToast("Order placed — " + D.format(totals.total), "fa-circle-check");
+      window.scrollTo({ top: 0, behavior: prefersReduced ? "auto" : "smooth" });
+    });
+  }
+
+  /* ---------- contact page ---------- */
+  function initContact() {
+    var form = document.getElementById("contactForm");
+    if (!form) return;
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = form.name.value.trim();
+      var email = form.email.value.trim();
+      var msg = form.message.value.trim();
+      var ok = true;
+      setFieldError(form.name, name.length < 2 ? "Please enter your name." : null); if (name.length < 2) ok = false;
+      setFieldError(form.email, !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) ? "Enter a valid email." : null); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) ok = false;
+      setFieldError(form.message, msg.length < 5 ? "Tell us a little more." : null); if (msg.length < 5) ok = false;
+      if (!ok) return;
+      form.reset();
+      showToast("Message sent — we'll reply within a day!", "fa-paper-plane");
+    });
+  }
+
   /* ---------- shop page ---------- */
   function initShop() {
     var grid = document.getElementById("shopGrid");
@@ -601,16 +770,10 @@
   }
 
   function updateSummary(cart) {
-    var sub = cart.reduce(function (sum, i) { return sum + (i.price || 0) * i.qty; }, 0);
-    var promo = read(PROMO_KEY, null);
-    var discount = 0;
+    var totals = computeTotals(cart);
+    var sub = totals.sub, discount = totals.discount, delivery = totals.delivery, total = totals.total;
     var promoMsgEl = document.getElementById("promoMsg");
-    if (promo) {
-      discount = Math.round(sub * 0.1);
-      if (promoMsgEl) { promoMsgEl.className = "promo-msg ok"; promoMsgEl.textContent = "SPARKLE10 applied — 10% off 🎉"; }
-    }
-    var delivery = sub - discount > 0 && sub - discount < 10000 ? 1500 : 0;
-    var total = sub - discount + delivery;
+    if (discount && promoMsgEl) { promoMsgEl.className = "promo-msg ok"; promoMsgEl.textContent = "SPARKLE10 applied — 10% off 🎉"; }
 
     var el = document.getElementById("cartSummary");
     if (!el) return;
@@ -840,9 +1003,12 @@
   updateBadges();
   initHome();
   initProduct();
+  initCategory();
   initShop();
   renderCart();
   initCartPage();
+  initCheckout();
+  initContact();
   initAuth();
   initAccount();
   observeReveals();

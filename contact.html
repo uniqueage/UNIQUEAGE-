@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us — UNIQUE AGE · UAGE</title>
+  <meta name="description" content="Get in touch with UAGE — questions about orders, delivery, bulk purchases and more." />
+  <meta name="theme-color" content="#062a3f" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%AB%A7%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="pages.css" />
+</head>
+<body data-page="home">
+
+  <main>
+    <section class="contact-page">
+      <div class="wrap">
+        <div class="page-hero">
+          <div>
+            <span class="crumb"><i class="fas fa-envelope"></i>Contact</span>
+            <h1>We'd love to <em>hear</em> from you</h1>
+            <p>Questions about an order, delivery times, or buying in bulk? Reach out — we usually reply within one business day.</p>
+          </div>
+          <a class="btn btn-light" href="faq.html"><i class="fas fa-circle-question"></i>Read the FAQ</a>
+        </div>
+
+        <div class="contact-grid" style="margin-top: var(--section-y)">
+          <div class="contact-cards">
+            <div class="contact-card reveal">
+              <i class="fas fa-phone"></i>
+              <div><strong>Call or WhatsApp</strong><span>+234 800 000 0000<br />Mon–Sat, 9am – 7pm</span></div>
+            </div>
+            <div class="contact-card reveal">
+              <i class="fas fa-envelope"></i>
+              <div><strong>Email us</strong><span>hello@uniqueage.example<br />support@uniqueage.example</span></div>
+            </div>
+            <div class="contact-card reveal">
+              <i class="fas fa-location-dot"></i>
+              <div><strong>Visit the studio</strong><span>12 Fresh Street, Ikeja,<br />Lagos, Nigeria</span></div>
+            </div>
+            <div class="contact-card reveal">
+              <i class="fas fa-boxes-stacked"></i>
+              <div><strong>Bulk &amp; wholesale</strong><span>Hotels, restaurants and retailers — ask about our trade prices.</span></div>
+            </div>
+          </div>
+
+          <form class="checkout-card" id="contactForm" novalidate>
+            <h3><i class="fas fa-paper-plane"></i>Send a message</h3>
+            <div class="form-field">
+              <label for="ctName">Your name</label>
+              <input class="form-input" id="ctName" name="name" type="text" placeholder="e.g. Amaka Okafor" autocomplete="name" />
+              <div class="form-hint"></div>
+            </div>
+            <div class="form-field">
+              <label for="ctEmail">Email address</label>
+              <input class="form-input" id="ctEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" />
+              <div class="form-hint"></div>
+            </div>
+            <div class="form-field">
+              <label for="ctSubject">Subject</label>
+              <select class="form-input" id="ctSubject" name="subject">
+                <option>Order question</option>
+                <option>Delivery issue</option>
+                <option>Product question</option>
+                <option>Bulk / wholesale</option>
+                <option>Something else</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="ctMessage">Message</label>
+              <textarea class="form-input" id="ctMessage" name="message" rows="4" placeholder="How can we help?"></textarea>
+              <div class="form-hint"></div>
+            </div>
+            <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-paper-plane"></i>Send message</button>
+            <p class="form-note">Demo form — messages aren't sent anywhere yet.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — UNIQUE AGE · UAGE</title>
+  <meta name="description" content="Complete your UAGE order — delivery details, payment method and order summary." />
+  <meta name="theme-color" content="#062a3f" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%AB%A7%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="pages.css" />
+</head>
+<body data-page="cart">
+
+  <main>
+    <section class="checkout-page">
+      <div class="wrap">
+        <div class="page-hero">
+          <div>
+            <span class="crumb"><i class="fas fa-lock"></i>Checkout</span>
+            <h1>Almost <em>done</em></h1>
+            <p>Tell us where to deliver and how you'd like to pay. Your details are saved to this browser.</p>
+          </div>
+          <a class="btn btn-light" href="cart.html"><i class="fas fa-arrow-left"></i>Back to cart</a>
+        </div>
+
+        <!-- empty cart -->
+        <div class="empty-state" id="coEmpty" style="display:none; margin-top: var(--section-y)">
+          <i class="fas fa-cart-arrow-down"></i>
+          <h3>Nothing to check out yet</h3>
+          <p>Add a few products to your cart first, then come back here.</p>
+          <a class="btn btn-primary" href="shop.html"><i class="fas fa-store"></i>Browse the shop</a>
+        </div>
+
+        <div class="checkout-layout" id="coLayout" style="margin-top: var(--section-y)">
+          <form class="checkout-card" id="checkoutForm" novalidate>
+            <h3><i class="fas fa-truck-fast"></i>Delivery details</h3>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="coName">Full name</label>
+                <input class="form-input" id="coName" name="name" type="text" placeholder="e.g. Amaka Okafor" autocomplete="name" />
+                <div class="form-hint"></div>
+              </div>
+              <div class="form-field">
+                <label for="coPhone">Phone number</label>
+                <input class="form-input" id="coPhone" name="phone" type="tel" placeholder="e.g. 0803 123 4567" autocomplete="tel" />
+                <div class="form-hint"></div>
+              </div>
+              <div class="form-field full">
+                <label for="coEmail">Email address</label>
+                <input class="form-input" id="coEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" />
+                <div class="form-hint"></div>
+              </div>
+              <div class="form-field full">
+                <label for="coAddress">Delivery address</label>
+                <input class="form-input" id="coAddress" name="address" type="text" placeholder="Street, area, landmark…" autocomplete="street-address" />
+                <div class="form-hint"></div>
+              </div>
+              <div class="form-field">
+                <label for="coCity">City</label>
+                <input class="form-input" id="coCity" name="city" type="text" placeholder="e.g. Lagos" autocomplete="address-level2" />
+                <div class="form-hint"></div>
+              </div>
+              <div class="form-field">
+                <label for="coNotes">Delivery notes (optional)</label>
+                <input class="form-input" id="coNotes" name="notes" type="text" placeholder="e.g. Call when you arrive" />
+              </div>
+            </div>
+
+            <h3 style="margin-top:1.4rem"><i class="fas fa-wallet"></i>Payment method</h3>
+            <div class="payment-options" id="paymentOptions">
+              <label class="payment-option selected">
+                <input type="radio" name="payment" value="Pay on delivery" checked />
+                <i class="fas fa-money-bill-wave"></i>
+                <span><strong>Pay on delivery</strong><span>Cash or transfer when your order arrives</span></span>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment" value="Bank transfer" />
+                <i class="fas fa-building-columns"></i>
+                <span><strong>Bank transfer</strong><span>Account details shared after checkout</span></span>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment" value="Card" />
+                <i class="fas fa-credit-card"></i>
+                <span><strong>Card payment</strong><span>Visa, Mastercard &amp; Verve (demo)</span></span>
+              </label>
+            </div>
+
+            <button class="btn btn-primary btn-block" id="coSubmit" type="submit" style="margin-top:1.2rem">
+              <i class="fas fa-lock"></i>Place order · <span id="coTotal">₦0</span>
+            </button>
+            <p class="form-note">This is a demo store — no real payment is taken.</p>
+          </form>
+
+          <aside class="checkout-card checkout-summary">
+            <h3><i class="fas fa-receipt"></i>Order summary</h3>
+            <div id="coLines"><!-- lines injected by app.js --></div>
+            <div class="sum-row" style="margin-top:.8rem"><span>Subtotal</span><span id="coSubtotal">₦0</span></div>
+            <div class="sum-row"><span>Discount</span><span id="coDiscount">—</span></div>
+            <div class="sum-row"><span>Delivery</span><span id="coDelivery">—</span></div>
+            <div class="sum-row total"><span>Total</span><span id="coTotalSum">₦0</span></div>
+            <p class="delivery-note"><i class="fas fa-truck-fast"></i>Free delivery on orders over ₦10,000. Delivery takes 2–4 days nationwide.</p>
+          </aside>
+        </div>
+
+        <!-- success -->
+        <div class="checkout-card checkout-success" id="coSuccess" style="margin-top: var(--section-y)">
+          <i class="fas fa-circle-check"></i>
+          <h2 id="coSuccessTitle">Order placed!</h2>
+          <p id="coSuccessMsg">Thanks for shopping with UAGE. We'll call to confirm your delivery soon.</p>
+          <a class="btn btn-primary" href="account.html"><i class="fas fa-user"></i>View my orders</a>
+          <a class="btn btn-outline" href="shop.html" style="margin-left:.6rem"><i class="fas fa-store"></i>Keep shopping</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
