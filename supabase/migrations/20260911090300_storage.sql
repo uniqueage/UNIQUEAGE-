@@ -30,10 +30,30 @@ on conflict (id) do update
       file_size_limit    = excluded.file_size_limit,
       allowed_mime_types = excluded.allowed_mime_types;
 
--- Supabase enables RLS on storage.objects by default. This is idempotent and
--- guarantees the policies below are actually enforced regardless of the
--- project's dashboard state.
-alter table storage.objects enable row level security;
+-- RLS is ALREADY enabled on storage.objects on hosted Supabase, and since
+-- April 2025 Supabase blocks `alter table` on the storage schema even for the
+-- postgres role. An unconditional ALTER therefore aborts the entire migration
+-- with:
+--
+--     ERROR: 42501: must be owner of table objects
+--
+-- while `create policy` on the same table is permitted. So enable RLS only when
+-- it is genuinely off (a local or stubbed database), and never let a missing
+-- privilege take the rest of this script down with it.
+do $$
+begin
+  if not (select c.relrowsecurity
+            from pg_class c
+           where c.oid = 'storage.objects'::regclass) then
+    begin
+      alter table storage.objects enable row level security;
+    exception
+      when insufficient_privilege then
+        raise notice
+          'Skipping ENABLE ROW LEVEL SECURITY on storage.objects (insufficient privilege). On hosted Supabase this is already managed for you.';
+    end;
+  end if;
+end $$;
 
 -- ===========================================================================
 -- product-images

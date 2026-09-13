@@ -231,7 +231,11 @@ begin
     v_discount := round(v_subtotal * v_promo.percent_off / 100.0, 2);
   end if;
 
+  -- Nothing priced means nothing to deliver. Unreachable in practice, because
+  -- every line is validated above, but kept identical to checkout_preview() so
+  -- the quote and the charge can never drift apart.
   v_delivery_fee := case
+    when v_subtotal <= 0 then 0
     when (v_subtotal - v_discount) >= c_free_delivery then 0
     else c_delivery_fee
   end;

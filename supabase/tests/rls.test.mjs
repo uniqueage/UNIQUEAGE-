@@ -546,6 +546,22 @@ check(
   goneQuote.items[0].reason
 );
 
+/* A basket whose lines cannot be priced at all has nothing to deliver, so it
+ * must not be quoted a delivery fee — charging one shows a customer a total for
+ * goods they are not receiving. Regression test: the fee used to be added
+ * unconditionally, so a vanished basket quoted ₦1,500 with a ₦0 subtotal. */
+eq("an unpriced basket is charged no delivery fee", goneQuote.delivery_fee, 0);
+eq("  ...and is quoted a total of zero", goneQuote.total_amount, 0);
+eq("  ...with no subtotal", goneQuote.subtotal, 0);
+
+/* Out of stock is deliberately different: the line is still priced, so the
+ * displayed total keeps matching the items on the page (see the comment in
+ * checkout_preview). What matters is that it is flagged unavailable, and that
+ * place_order() — the authority — still refuses the order. */
+eq("an out-of-stock line holds no delivery fee", soldOutQuote.delivery_fee, 0);
+eq("  ...and its subtotal still mirrors the line on the page", soldOutQuote.subtotal,
+   Number(soldOutQuote.items[0].unit_price) * Number(soldOutQuote.items[0].quantity));
+
 /* And the quote is only ever a quote: place_order still refuses a bad basket.
  * Checked as a signed-in customer, since an anonymous caller is refused
  * earlier (for not being signed in) and would mask the stock check. */

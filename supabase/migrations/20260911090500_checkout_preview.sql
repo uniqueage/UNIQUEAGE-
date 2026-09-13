@@ -177,7 +177,12 @@ begin
     end if;
   end if;
 
+  -- Nothing priced means nothing to deliver: a basket whose only lines are
+  -- unavailable has a subtotal of 0, and quoting a delivery fee on top of that
+  -- would show a total the customer cannot make sense of. Free delivery over
+  -- the threshold is applied first. Keep in sync with place_order().
   v_delivery := case
+    when v_subtotal <= 0 then 0
     when (v_subtotal - v_discount) >= c_free_delivery then 0
     else c_delivery_fee
   end;

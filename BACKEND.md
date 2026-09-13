@@ -6,11 +6,18 @@ the browser talks to Supabase with the publishable anon key, and *every*
 security decision is enforced in the database by Row Level Security and
 `SECURITY DEFINER` functions.
 
-> **Status:** the database, RLS, storage, seed catalog, the data-access layer,
-> the storefront wiring and the admin dashboard are all built and tested —
-> **101 + 101 + 67 + 105 assertions pass**. The only thing outstanding is applying the
-> migrations to the live project (§10); until then the storefront runs in
-> `bundled` mode and the dashboard shows a setup panel.
+> **Status: LIVE.** The schema is applied to project `dfijuptbuhshmdsalbnm` and
+> the catalog is seeded (22 products, 4 categories, 39 sizes, 1 promo). The
+> storefront, auth, cart, checkout and admin dashboard all run against it.
+>
+> Verified by **423 assertions** — 106 + 106 against embedded Postgres (the
+> migrations, and the generated one-paste `SETUP.sql`, proving they are
+> equivalent), 67 for the data layer, 105 for the storefront adapter and script
+> wiring, and **39 against the live project over its real REST API**, using only
+> the publishable anon key that every visitor already has.
+>
+> One step is still yours: create an account and promote it to administrator
+> (§13).
 
 ---
 
@@ -20,6 +27,7 @@ security decision is enforced in the database by Row Level Security and
 supabase/
 ├── SETUP.sql                              GENERATED — all migrations as one paste
 ├── build-setup.mjs                        regenerates SETUP.sql from the migrations
+├── apply-remote.mjs                       apply/check/promote against the real project
 ├── migrations/
 │   ├── 20260911090000_init_schema.sql     types, tables, constraints, indexes, triggers
 │   ├── 20260911090100_rls_policies.sql    RLS for every table
@@ -36,7 +44,8 @@ BACKEND.md                                 this file
 
 tests/
 ├── api.test.mjs                           67-assertion data-layer suite
-└── store.test.mjs                         105-assertion adapter + wiring suite
+├── store.test.mjs                         105-assertion adapter + wiring suite
+└── live.test.mjs                          39-assertion test against the DEPLOYED project
 
 js/
 ├── supabase-config.js                     public URL + anon key only (publishable)
@@ -313,15 +322,31 @@ cp env.example .env.example && cp env.example .env
 
 ## 10. Applying the migrations
 
-> **Status.** `js/supabase-config.js` is wired to the project
-> `dfijuptbuhshmdsalbnm` with its **publishable anon key** (verified to decode
-> as `role: "anon"`). The schema has **not** been applied yet — every table
-> returns `PGRST205`. Until the migrations below run, the storefront keeps
-> working from `data.js`/`localStorage` (the adapter's `bundled` mode) and
-> `admin.html` shows a "Database setup needed" panel that links straight to the
-> SQL editor.
+> **Status: applied.** `js/supabase-config.js` is wired to the project
+> `dfijuptbuhshmdsalbnm` with its **publishable anon key** (verified to decode as
+> `role: "anon"`), and all six migrations have been applied to it. 8 tables, 23
+> public policies, 3 enums, 2 storage buckets with 8 policies, and the seeded
+> catalog are live. Verified with `--check` (5/5) and `tests/live.test.mjs`
+> (39/39).
 
-**Option A — one paste (easiest).** Open
+**Option A — the Management API (no database password, no CLI, no Docker).**
+
+A personal access token with the `database:write` scope is enough, because
+`POST /v1/projects/{ref}/database/query` proxies arbitrary SQL — including DDL —
+to Postgres as the `postgres` role:
+
+```bash
+# https://supabase.com/dashboard/account/tokens
+SUPABASE_ACCESS_TOKEN=sbp_… node supabase/apply-remote.mjs --check          # what is installed
+SUPABASE_ACCESS_TOKEN=sbp_… node supabase/apply-remote.mjs                  # apply SETUP.sql
+SUPABASE_ACCESS_TOKEN=sbp_… node supabase/apply-remote.mjs --selftest-auth  # verify signup, then clean up
+SUPABASE_ACCESS_TOKEN=sbp_… node supabase/apply-remote.mjs --promote you@example.com
+```
+
+The token is read from the environment, never printed, and never written to
+disk. Revoke it from the same page when you are done.
+
+**Option B — one paste.** Open
 `https://supabase.com/dashboard/project/<project-ref>/sql/new`, paste the whole
 of **`supabase/SETUP.sql`**, and run it. That file is *generated* from the six
 migrations, in dependency order — one paste instead of six. It is safe to
@@ -331,10 +356,11 @@ re-run: nothing is dropped.
 node supabase/build-setup.mjs     # regenerate after editing any migration
 ```
 
-The test suite fails if `SETUP.sql` drifts out of sync with the migrations, so
-it can never silently lag behind.
+The test suite runs the whole 106-assertion suite against `SETUP.sql` as a single
+script (`npm run test:combined`) and fails if it drifts out of sync with the
+migrations, so it can never silently lag behind.
 
-**Option B — Supabase CLI (most reproducible):**
+**Option C — Supabase CLI (most reproducible):**
 
 ```bash
 npx supabase login
@@ -342,13 +368,23 @@ npx supabase link --project-ref "$SUPABASE_PROJECT_REF"
 npx supabase db push          # applies everything in supabase/migrations, in order
 ```
 
-**Option C — dashboard SQL editor, file by file:** paste each file from
-`supabase/migrations/` in filename order and run it. They are written to be safe
-in that context too — there are no bare `begin;`/`commit;` statements, so a file
-can be pasted whole.
+**Option D — dashboard SQL editor, file by file:** paste each file from
+`supabase/migrations/` in filename order and run it. There are no bare
+`begin;`/`commit;` statements, so a file can be pasted whole.
 
-Then bootstrap your own administrator with the `update public.user_roles …`
-statement from §4 (or press **Copy SQL** in the dashboard's Connection tab).
+### One real-world constraint the offline tests could not catch
+
+Supabase **blocked `ALTER TABLE` on the `storage` schema in April 2025**, and
+`storage.objects` is owned by `supabase_storage_admin` rather than `postgres`.
+An unconditional `alter table storage.objects enable row level security`
+therefore aborts the entire script with
+`ERROR: 42501: must be owner of table objects` — while `create policy` on the
+same table is perfectly allowed. The migration now only enables RLS when it is
+genuinely off, and tolerates `insufficient_privilege`, so it works both on a
+hosted project (where RLS is already on) and in the local stub.
+
+Applied as one transaction, so if any statement failed nothing was committed
+half-way — confirmed by `--check` reporting 0 tables after the first attempt.
 
 ---
 
@@ -409,6 +445,22 @@ the single nested product+variant insert, role changes going through
 `user_roles`, and promo-code normalisation. It also contains a **CI guard**
 that fails the build if a secret key is ever committed into the public config,
 or if the key's project does not match the configured URL.
+
+There is a fourth suite that tests the **deployed project** rather than an
+embedded one, using only the publishable anon key:
+
+```bash
+node tests/live.test.mjs         # 39 assertions against the live REST API
+```
+
+It cannot be replaced by the offline suites, because the real `auth` schema, the
+real storage ownership rules and the real PostgREST layer only exist on the
+hosted project. It asserts the public catalog is readable (22 products, 39 sizes)
+and that an anonymous visitor can reach **nothing** else — no profiles, roles,
+orders, order items or promo codes — and cannot insert a product, delete one,
+change a price or grant itself admin. It also pins the **jsonb contract**: every
+snake_case key `js/api.js` reads off `checkout_preview()` and every per-line
+field, so renaming a column in SQL cannot silently blank the cart.
 
 `tests/store.test.mjs` locks in the adapter's contract: the bundled fallback
 when the backend is absent, a catalog that still renders when the API surface is
@@ -518,6 +570,16 @@ but badly misleading while the project is still being set up.
 3. Reload `admin.html` and sign in. After that, use **Customers → Make admin**
    for everyone else.
 
+Or do step 2 from a terminal, which is what was used to set this project up:
+
+```bash
+SUPABASE_ACCESS_TOKEN=sbp_… node supabase/apply-remote.mjs --promote you@example.com
+```
+
+It refuses to invent an account: the user must already exist, so the signup flow
+is always exercised at least once. Roles are deliberately impossible to grant
+from a browser, which is why this step is out-of-band.
+
 A discreet **Staff dashboard** link is in the shared footer. The page is marked
 `noindex, nofollow`, and its URL is not a secret — the database is the gate.
 
@@ -536,11 +598,11 @@ Every storefront page loads `js/supabase-config.js` → `js/api.js` →
 | Cart totals | `checkout_preview(items, promo_code)` — the cart renders the server's numbers. |
 | Promo codes | Validated by the server. `promo_codes` is not customer-readable; the shop only learns the answer for the code already typed. |
 | Checkout | `place_order()`. **No prices are sent** — the database re-reads every product and recomputes subtotal, discount, delivery and total before writing. |
-| Offline preview | Still available while the schema is unapplied, so the shop is never broken or blank — it just is not database-backed yet. |
+| Offline preview | The `bundled` mode remains as a safety net: if the backend is unreachable the shop still renders, so a network problem never leaves a visitor staring at an empty grid. |
 
 ### Remaining work
 
-1. **Apply the migrations** (§10) — until then everything runs in `bundled` mode.
+1. **Create and promote your administrator account** (§13) — the last step.
 2. **Contact form** still posts nowhere; it needs a table or an email provider.
 3. **Payment** is recorded as a method (`Pay on delivery`, transfer), not
    processed. A real gateway is a separate integration.
