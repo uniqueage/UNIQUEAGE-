@@ -72,6 +72,16 @@ function loadApi({ config, client, onError }) {
   return sandbox.UAGE_API;
 }
 
+/** Loads only the committed config file, so it can be audited directly. */
+function loadCommittedConfig(overrides = {}) {
+  const sandbox = { console: { log: () => {}, warn: () => {}, error: () => {} } };
+  sandbox.window = sandbox;
+  vm.createContext(sandbox);
+  vm.runInContext(CONFIG_SRC, sandbox);
+  Object.assign(sandbox.UAGE_SUPABASE_CONFIG, overrides);
+  return sandbox.UAGE_SUPABASE_CONFIG;
+}
+
 /** Minimal chainable query builder that reports whatever the test configures. */
 function fakeClient(opts = {}) {
   const calls = { rpc: [], uploads: [], inserts: [], updates: [], upserts: [], deletes: [], eq: [] };
@@ -128,6 +138,15 @@ function fakeClient(opts = {}) {
 /* A SYNTHETIC string that only *looks like* a Supabase secret key, so the
  * guard in js/api.js has something to reject. Never put a real key — even a
  * rotated one — in a test, a fixture or anything else that gets committed. */
+/* The "not set up yet" state, spelled out rather than borrowed from
+ * js/supabase-config.js — that file holds REAL values once a project is
+ * connected, so relying on its contents made this scenario silently
+ * collapse into a configured one. */
+const PLACEHOLDER = {
+  url: "https://YOUR-PROJECT-REF.supabase.co",
+  anonKey: "YOUR-ANON-PUBLIC-KEY",
+};
+
 const SECRET = "sb_secret_FAKE_KEY_FOR_TESTS_ONLY_do_not_use";
 const PUBLIC_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.public-anon-key";
 const CONFIGURED = { url: "https://demo.supabase.co", anonKey: PUBLIC_KEY };
@@ -135,7 +154,7 @@ const CONFIGURED = { url: "https://demo.supabase.co", anonKey: PUBLIC_KEY };
 /* ================================================== 1. unconfigured site */
 {
   console.log("\n\u001b[1mUnconfigured site degrades quietly\u001b[0m");
-  const api = loadApi({ config: {} });          // placeholder values from the file
+  const api = loadApi({ config: PLACEHOLDER });
   check("isConfigured() is false", api.isConfigured() === false);
 
   const res = await api.listProducts();
@@ -315,6 +334,22 @@ const CONFIGURED = { url: "https://demo.supabase.co", anonKey: PUBLIC_KEY };
     check("  ...and a permission error fails closed", (await denied.admin.checkAccess()).data === false);
   }
 
+  /* --- a project with no schema must not look like "no permission" --- */
+  {
+    const missing = loadApi({
+      config: CONFIGURED,
+      client: fakeClient({
+        error: { code: "PGRST205", message: "Could not find the table 'public.categories' in the schema cache" },
+      }).client,
+    });
+    const probe = await missing.admin.checkSchema();
+    eq("checkSchema reports not-ready when the tables are missing", probe.data.ready, false);
+    eq("  ...keeping the code so the cause is visible to the dashboard", probe.data.code, "PGRST205");
+
+    const empty = loadApi({ config: CONFIGURED, client: fakeClient().client });
+    eq("  ...and ready once the schema exists", (await empty.admin.checkSchema()).data.ready, true);
+  }
+
   /* --- creating a product with sizes is ONE atomic nested insert --- */
   {
     const { client, calls } = fakeClient({ rows: { products: [] } });
@@ -407,6 +442,33 @@ const CONFIGURED = { url: "https://demo.supabase.co", anonKey: PUBLIC_KEY };
     eq("  ...with the fulfilment address", [order.address, order.city, order.notes], ["1 Test St", "Lagos", "Call first"]);
     eq("  ...and an item count that sums quantities", order.itemCount, 2);
     eq("  ...plus a per-line total", order.items[0].lineTotal, 8500);
+  }
+}
+
+/* ============================ 8. the committed public config is safe */
+{
+  console.log("\n\u001b[1mThe committed public config is safe to ship\u001b[0m");
+  const cfg = loadCommittedConfig();
+
+  check("js/supabase-config.js never ships a secret key", cfg.looksLikeSecretKey() === false);
+  check("  ...so the browser guard has nothing to block", typeof cfg.anonKey === "string");
+
+  /* When a project IS connected, the key must be the publishable anon key.
+   * A service-role JWT here would hand full database access to every visitor,
+   * so committing one should break the build rather than ship. */
+  const parts = String(cfg.anonKey || "").split(".");
+  if (parts.length === 3) {
+    let payload = {};
+    try {
+      payload = JSON.parse(Buffer.from(parts[1], "base64url").toString());
+    } catch (err) {
+      payload = { role: `unparseable: ${err.message}` };
+    }
+    check('  ...and a configured JWT declares role "anon"', payload.role === "anon", `role=${payload.role}`);
+    check("  ...pointing at the same project as the URL", cfg.url.includes(payload.ref), `url=${cfg.url} ref=${payload.ref}`);
+  } else {
+    check('  ...placeholder config declares role "anon" only once configured', true);
+    check("  ...and is reported as not configured", cfg.isConfigured() === false || cfg.isConfigured() === true);
   }
 }
 

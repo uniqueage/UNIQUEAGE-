@@ -12,11 +12,12 @@
  * Fill these in from:  Supabase Dashboard -> Project Settings -> API
  * =========================================================================== */
 window.UAGE_SUPABASE_CONFIG = {
-  /* e.g. "https://abcdefghijklmnop.supabase.co" */
-  url: "https://YOUR-PROJECT-REF.supabase.co",
+  /* Project URL — Supabase Dashboard -> Project Settings -> API -> Project URL */
+  url: "https://dfijuptbuhshmdsalbnm.supabase.co",
 
-  /* the "anon / public" key, NOT the service_role / secret key */
-  anonKey: "YOUR-ANON-PUBLIC-KEY",
+  /* The "anon / public" key, NOT the service_role / secret key.
+   * Decoded before committing: { role: "anon", ref: "dfijuptbuhshmdsalbnm" }. */
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmaWp1cHRidWhzaG1kc2FsYm5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxNTc4NjAsImV4cCI6MjEwNDczMzg2MH0.d_cEwrVHUcfh00Gd_IBqUyicKGIFU2enGIdJS8ENYkk",
 
   /* supabase-js major version loaded on demand by js/api.js */
   clientVersion: "@2",

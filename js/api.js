@@ -587,6 +587,24 @@
       });
     },
 
+    /**
+     * Has the schema actually been installed in this project?
+     *
+     * Reads one row from a public table: if the table is missing (PGRST205) or
+     * the function/table is unknown, the migrations have not been applied yet.
+     * This lets the dashboard say "the database is empty" instead of the
+     * misleading "you are not an administrator" — every admin call fails closed
+     * before the schema exists, which is correct but easy to misread.
+     */
+    checkSchema: function () {
+      return withClient(function (c) {
+        return c.from("categories").select("slug").limit(1);
+      }).then(function (r) {
+        if (r.error) return ok({ ready: false, code: r.error.code });
+        return ok({ ready: true, code: null });
+      });
+    },
+
     stats: function () {
       return withClient(function (c) { return c.rpc("admin_dashboard_stats"); });
     },

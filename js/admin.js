@@ -282,7 +282,69 @@
     );
   }
 
+  /**
+   * Runs `fn` only once the database schema is actually installed.
+   *
+   * Without this, a project that has not had the migrations applied looks
+   * exactly like "you are not an administrator": every admin call fails closed,
+   * which is correct but badly misleading while you are still setting up. The
+   * probe reads one public table, so it needs no privileges.
+   */
+  function requireSchema(fn) {
+    API.admin.checkSchema().then(function (probe) {
+      if (probe.data && probe.data.ready) { fn(); return; }
+      renderSchemaMissing();
+    });
+  }
+
+  function renderSchemaMissing() {
+    var cfg = window.UAGE_SUPABASE_CONFIG || {};
+    var ref = (String(cfg.url || "").match(/^https:\/\/([a-z0-9-]+)\.supabase\./) || [])[1] || "";
+    var editor = ref
+      ? "https://supabase.com/dashboard/project/" + ref + "/sql/new"
+      : "https://supabase.com/dashboard";
+
+    var files = [
+      ["20260911090000_init_schema.sql", "types, tables, constraints, indexes, triggers"],
+      ["20260911090100_rls_policies.sql", "Row Level Security for every table"],
+      ["20260911090200_functions.sql", "place_order(), admin_set_user_role(), dashboard stats"],
+      ["20260911090300_storage.sql", "image buckets + storage policies"],
+      ["20260911090400_seed_catalog.sql", "4 categories, 22 products, their sizes, SPARKLE10"]
+    ];
+
+    els.title.textContent = "Database setup needed";
+    els.subtitle.textContent = "The project is connected, but its tables don't exist yet.";
+
+    viewShell(
+      '<i class="fas fa-database"></i>' +
+      "<h3>Connected to Supabase \u2014 but the database is still empty</h3>" +
+      "<p>Your project is reachable and the key is valid, so this is the last step: apply the five " +
+        "migrations below, in order. They create every table, the security policies and your full " +
+        "catalog. Nothing is ever dropped, and re-running them is safe.</p>" +
+      '<ol style="text-align:left;max-width:54ch;font-size:.86rem;line-height:1.7;margin:.8rem auto 0">' +
+        files.map(function (f) {
+          return "<li><code>supabase/migrations/" + f[0] + "</code><br>" +
+            '<span class="adm-small adm-muted">' + f[1] + "</span></li>";
+        }).join("") +
+      "</ol>" +
+      '<div style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-top:1.2rem">' +
+        '<a class="adm-btn adm-btn-primary" href="' + esc(editor) + '" target="_blank" rel="noopener">' +
+          '<i class="fas fa-arrow-up-right-from-square"></i>Open the SQL editor</a>' +
+        '<button class="adm-btn" type="button" id="admSchemaRecheck"><i class="fas fa-rotate"></i>I\'ve applied them \u2014 recheck</button>' +
+      "</div>" +
+      '<p class="adm-hint" style="margin-top:1rem">Prefer the command line? Copy <code>env.example</code> to ' +
+        "<code>.env</code>, fill in <code>SUPABASE_DB_URL</code>, then run <code>supabase db push</code>.</p>"
+    );
+
+    $("admSchemaRecheck").addEventListener("click", function () { boot(); });
+  }
+
   function renderSignIn() {
+    /* Ask for a password only once there is a database to sign in to. */
+    requireSchema(renderSignInForm);
+  }
+
+  function renderSignInForm() {
     els.title.textContent = "Sign in";
     els.subtitle.textContent = "Administrator access is required.";
     els.view.innerHTML =
@@ -337,6 +399,10 @@
   }
 
   function renderNoAccess() {
+    requireSchema(renderNoAccessPanel);
+  }
+
+  function renderNoAccessPanel() {
     els.title.textContent = "Not authorised";
     els.subtitle.textContent = "This account is not an administrator.";
     var email = (S.user && S.user.email) || "";

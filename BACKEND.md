@@ -284,6 +284,13 @@ cp env.example .env.example && cp env.example .env
 
 ## 10. Applying the migrations
 
+> **Status.** `js/supabase-config.js` is wired to the project
+> `dfijuptbuhshmdsalbnm` with its **publishable anon key** (verified to decode
+> as `role: "anon"`). The schema has **not** been applied yet — every table
+> returns `PGRST205`. Until the migrations below run, the storefront keeps
+> working from `data.js`/`localStorage` and `admin.html` shows a
+> "Database setup needed" panel that links straight to the SQL editor.
+
 **Option A — Supabase CLI (recommended, reproducible):**
 
 ```bash
@@ -293,10 +300,13 @@ npx supabase db push          # applies everything in supabase/migrations, in or
 ```
 
 **Option B — dashboard SQL editor:** paste each file from `supabase/migrations/`
-in filename order and run it. They are written to be safe in that context too.
+in filename order and run it. They are written to be safe in that context too —
+there are no bare `begin;`/`commit;` statements, so a file can be pasted whole.
+Open the editor at
+`https://supabase.com/dashboard/project/<project-ref>/sql/new`.
 
 Then bootstrap your own administrator with the `update public.user_roles …`
-statement from §4.
+statement from §4 (or press **Copy SQL** in the dashboard's Connection tab).
 
 ---
 
