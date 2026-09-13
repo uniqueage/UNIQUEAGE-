@@ -6,9 +6,11 @@ the browser talks to Supabase with the publishable anon key, and *every*
 security decision is enforced in the database by Row Level Security and
 `SECURITY DEFINER` functions.
 
-> **Status:** Stage 1 (database, RLS, storage, seed) is complete and tested —
-> 80/80 assertions pass. Stage 2 (frontend wiring) is not applied yet.
-> Nothing in the existing site has been modified.
+> **Status:** the database, RLS, storage, seed catalog, the data-access layer,
+> the storefront wiring and the admin dashboard are all built and tested —
+> **101 + 101 + 67 + 105 assertions pass**. The only thing outstanding is applying the
+> migrations to the live project (§10); until then the storefront runs in
+> `bundled` mode and the dashboard shows a setup panel.
 
 ---
 
@@ -16,25 +18,30 @@ security decision is enforced in the database by Row Level Security and
 
 ```
 supabase/
+├── SETUP.sql                              GENERATED — all migrations as one paste
+├── build-setup.mjs                        regenerates SETUP.sql from the migrations
 ├── migrations/
 │   ├── 20260911090000_init_schema.sql     types, tables, constraints, indexes, triggers
 │   ├── 20260911090100_rls_policies.sql    RLS for every table
 │   ├── 20260911090200_functions.sql       place_order(), admin_set_user_role(), stats
 │   ├── 20260911090300_storage.sql         buckets + storage policies
-│   └── 20260911090400_seed_catalog.sql    4 categories, 22 products, 39 variants, SPARKLE10
+│   ├── 20260911090400_seed_catalog.sql    4 categories, 22 products, 39 variants, SPARKLE10
+│   └── 20260911090500_checkout_preview.sql  checkout_preview() — server-side cart quote
 └── tests/
     ├── supabase-stubs.sql                 auth/storage stand-ins for offline runs
-    ├── rls.test.mjs                       80-assertion RLS + order-logic suite
-    └── package.json                       `npm test`
+    ├── rls.test.mjs                       101-assertion RLS + order-logic suite
+    └── package.json                       `npm test`, `npm run test:combined`
 env.example                                environment variable template
 BACKEND.md                                 this file
 
 tests/
-└── api.test.mjs                          60-assertion data-layer suite
+├── api.test.mjs                           67-assertion data-layer suite
+└── store.test.mjs                         105-assertion adapter + wiring suite
 
 js/
 ├── supabase-config.js                     public URL + anon key only (publishable)
-└── api.js                                 the ONLY module that talks to Supabase
+├── api.js                                 the ONLY module that talks to Supabase
+└── store.js                               bridge app.js talks to (live or bundled)
 
 admin.html + admin.css + js/admin.js       administrator dashboard
 ```
@@ -216,8 +223,25 @@ avatars. Images live in Storage — only the resulting public URL is stored in
 ```
 js/supabase-config.js   public URL + anon key only — committed, publishable
 js/api.js               the ONLY module that talks to Supabase
+js/store.js             the bridge app.js talks to — live backend or bundled fallback
 js/admin.js             the admin dashboard (uses UAGE_API, never Supabase directly)
 ```
+
+**`js/store.js` (`window.UAGE_STORE`)** is the seam that keeps `app.js`
+unchanged in shape. `app.js` renders exactly as it always did; the adapter
+decides *where the data comes from* and makes every backend call for it. It has
+two modes, chosen at runtime after a single schema probe per page:
+
+| Mode | When | Behaviour |
+|---|---|---|
+| `live` | configured **and** migrated | catalog, accounts, orders and quotes come from Postgres |
+| `bundled` | unset, unreachable, **or not yet migrated** | falls back to the `data.js` catalog and offline preview, so the shop is never blank |
+
+The catalog swap is raced against a 2.5 s timeout so a dead network can never
+leave a visitor staring at empty grids. Two rules the adapter exists to keep:
+**no password is ever stored on the device**, and **no price, discount,
+delivery fee or total is ever computed or trusted client-side** — the cart asks
+`checkout_preview` for a quote and `place_order` prices the order again.
 
 `js/api.js` exposes `listCategories`, `listProducts`, `listAllProducts`,
 `getProduct`, `signUp`, `signIn`, `signOut`, `getSession`, `getUser`,
@@ -252,7 +276,12 @@ Two implementation notes that matter:
   delete removed sizes) so that every individual request moves the row from one
   valid state to another.
 
-Run the suite with `node tests/api.test.mjs` (60 assertions, no project needed).
+Run the suite with `node tests/api.test.mjs` (67 assertions, no project needed).
+A third suite covers the storefront adapter:
+
+```bash
+node tests/store.test.mjs        # 105 assertions — fallback, quoting, script wiring
+```
 
 ---
 
@@ -288,10 +317,24 @@ cp env.example .env.example && cp env.example .env
 > `dfijuptbuhshmdsalbnm` with its **publishable anon key** (verified to decode
 > as `role: "anon"`). The schema has **not** been applied yet — every table
 > returns `PGRST205`. Until the migrations below run, the storefront keeps
-> working from `data.js`/`localStorage` and `admin.html` shows a
-> "Database setup needed" panel that links straight to the SQL editor.
+> working from `data.js`/`localStorage` (the adapter's `bundled` mode) and
+> `admin.html` shows a "Database setup needed" panel that links straight to the
+> SQL editor.
 
-**Option A — Supabase CLI (recommended, reproducible):**
+**Option A — one paste (easiest).** Open
+`https://supabase.com/dashboard/project/<project-ref>/sql/new`, paste the whole
+of **`supabase/SETUP.sql`**, and run it. That file is *generated* from the six
+migrations, in dependency order — one paste instead of six. It is safe to
+re-run: nothing is dropped.
+
+```bash
+node supabase/build-setup.mjs     # regenerate after editing any migration
+```
+
+The test suite fails if `SETUP.sql` drifts out of sync with the migrations, so
+it can never silently lag behind.
+
+**Option B — Supabase CLI (most reproducible):**
 
 ```bash
 npx supabase login
@@ -299,11 +342,10 @@ npx supabase link --project-ref "$SUPABASE_PROJECT_REF"
 npx supabase db push          # applies everything in supabase/migrations, in order
 ```
 
-**Option B — dashboard SQL editor:** paste each file from `supabase/migrations/`
-in filename order and run it. They are written to be safe in that context too —
-there are no bare `begin;`/`commit;` statements, so a file can be pasted whole.
-Open the editor at
-`https://supabase.com/dashboard/project/<project-ref>/sql/new`.
+**Option C — dashboard SQL editor, file by file:** paste each file from
+`supabase/migrations/` in filename order and run it. They are written to be safe
+in that context too — there are no bare `begin;`/`commit;` statements, so a file
+can be pasted whole.
 
 Then bootstrap your own administrator with the `update public.user_roles …`
 statement from §4 (or press **Copy SQL** in the dashboard's Connection tab).
@@ -319,7 +361,7 @@ npm test
 ```
 
 The suite boots an embedded Postgres (PGlite) with `auth`/`storage` stubbed,
-applies all five migrations, then asserts **80 invariants** covering:
+applies all six migrations, then asserts **101 invariants** covering:
 
 - migrations apply cleanly; seed counts (4 / 22 / 39 / 1)
 - signup triggers create a profile and a **customer** role (never admin)
@@ -342,21 +384,42 @@ applies all five migrations, then asserts **80 invariants** covering:
 Run it after any migration change — it is the regression net for the
 authorization model.
 
-There is a second, faster suite for the JavaScript data layer:
+The same assertions run a second time against the **single-paste** file, so
+`SETUP.sql` is proven equivalent to the six migrations rather than assumed:
 
 ```bash
-node tests/api.test.mjs          # 60 assertions, no project or install needed
+npm run test:combined            # applies SETUP.sql as ONE script → 101/101
 ```
 
-It runs `js/api.js` against a stubbed Supabase client and covers the paths that
-are expensive to get wrong: an unconfigured site degrading quietly, a
-service-role key in public config being blocked, error translation that never
-leaks table/RLS detail, cart resolution that sends **no prices**, the
-admin-shaped order keeping every field the storefront already renders, and the
-admin dashboard's data paths — `checkAccess()` failing closed, the single
-nested product+variant insert, role changes going through
+Two further suites cover the JavaScript layers and need no project or install:
+
+```bash
+node tests/api.test.mjs          # 67 assertions — the data layer
+node tests/store.test.mjs        # 105 assertions — the storefront adapter
+```
+
+`tests/api.test.mjs` runs `js/api.js` against a stubbed Supabase client and
+covers the paths that are expensive to get wrong: an unconfigured site
+degrading quietly, a service-role key in public config being blocked, error
+translation that never leaks table/RLS detail, the quote that sends **no
+prices**, the admin-shaped order keeping every field the storefront already
+renders, and the admin dashboard's data paths — `checkAccess()` failing closed,
+the single nested product+variant insert, role changes going through
 `admin_set_user_role()` (never a table write), `listRoles()` joining
-`user_roles`, and promo-code normalisation.
+`user_roles`, and promo-code normalisation. It also contains a **CI guard**
+that fails the build if a secret key is ever committed into the public config,
+or if the key's project does not match the configured URL.
+
+`tests/store.test.mjs` locks in the adapter's contract: the bundled fallback
+when the backend is absent, a catalog that still renders when the API surface is
+partial, a failed sign-out reported honestly instead of pretending, and the
+rules that **no password is ever written to `localStorage`** and no price is
+added client-side. It also asserts the **script wiring** of every page — that
+all twelve storefront pages load `supabase-config` → `api` → `store` → `app.js`
+in dependency order, that `admin.html` loads its own three in order, and that no
+page ships an inline secret key. A single missing or reordered `<script>` tag is
+the failure mode that looks like "the site is broken", so it is tested rather
+than trusted.
 
 ---
 
@@ -373,7 +436,7 @@ nested product+variant insert, role changes going through
 | Cross-customer data access | Policies filter by `auth.uid()`; proven by the isolation tests. |
 | Missing server-side validation | Constraints + `place_order()` validation on every field, including enum/status values. |
 | Insecure file uploads | Per-bucket MIME allow-lists and size limits; avatars scoped to the owner's own folder. |
-| Error detail leakage | Frontend will map error codes to friendly messages (Stage 2). |
+| Error detail leakage | `js/api.js` maps Postgres codes to friendly messages; table names, constraint names and RLS internals go to the console only. |
 | Privilege escalation to last-admin loss | `admin_set_user_role()` refuses to demote the final administrator. |
 
 ---
@@ -424,6 +487,22 @@ as success).
 - **A secret key in the browser is refused.** `js/api.js` hard-stops and logs
   loudly if a `service_role` / `sb_secret_` key appears in public config.
 
+### Setup states it reports honestly
+
+`admin.html` distinguishes three situations that would otherwise all look like
+the same dead end:
+
+| State | What it shows |
+|---|---|
+| No config | **"Setup needed"** — the config file still holds placeholders |
+| Configured, **not migrated** | **"Database setup needed"** — the key is valid but the tables do not exist, with a link straight to the SQL editor and a *recheck* button |
+| Migrated, no session | The inline sign-in form |
+| Migrated, signed in, not an admin | "Not an administrator" — and this fails **closed** |
+
+Without the schema probe the second case would have been reported as "you are
+not an administrator": technically true, because every admin call fails closed,
+but badly misleading while the project is still being set up.
+
 ### Getting in
 
 1. Create an account in the shop (`signup.html`).
@@ -444,20 +523,28 @@ A discreet **Staff dashboard** link is in the shared footer. The page is marked
 
 ---
 
-## 14. What is NOT done yet (Stage 2)
+## 14. Storefront wiring — what is connected now
 
-The database is ready and verified; the storefront still uses `data.js` and
-`localStorage`. Remaining work, pending your Supabase project URL + anon key:
+Every storefront page loads `js/supabase-config.js` → `js/api.js` →
+`js/store.js` before `app.js`, so the same markup runs either mode.
 
-1. `js/supabase-config.js` + `js/api.js` (the data-access layer).
-2. Replace the fake `localStorage` auth in `app.js` with Supabase Auth.
-3. Load products/categories from the database, falling back to `data.js` if
-   Supabase is unreachable, so the site never breaks.
-4. Send checkout through `place_order()` instead of computing totals client-side.
-5. Account page: real profile + real order history, avatar upload.
-6. ~~Admin page~~ — **built** (`admin.html`, see §13); it comes alive as soon as
-   the config is filled in.
-7. Sign-in and account pages still use the `localStorage` demo path; they need
-   pointing at Supabase Auth (`js/api.js` already supports it).
-8. Send checkout through `place_order()` instead of computing totals client-side,
-   so the cart/checkout flow uses the server-authoritative totals.
+| Feature | Now |
+|---|---|
+| Catalog (home, shop, category, product) | From `products`/`product_variants` when live, bundled `data.js` otherwise. The swap is **in place**, so `app.js`'s reference sees it. |
+| Sign up / sign in / sign out | Supabase Auth. No password is ever written to `localStorage`; the cached record is a **display cache only** and never decides access. |
+| Account page | Real session, real `profiles` row, real order history via `listMyOrders()`. |
+| Cart totals | `checkout_preview(items, promo_code)` — the cart renders the server's numbers. |
+| Promo codes | Validated by the server. `promo_codes` is not customer-readable; the shop only learns the answer for the code already typed. |
+| Checkout | `place_order()`. **No prices are sent** — the database re-reads every product and recomputes subtotal, discount, delivery and total before writing. |
+| Offline preview | Still available while the schema is unapplied, so the shop is never broken or blank — it just is not database-backed yet. |
+
+### Remaining work
+
+1. **Apply the migrations** (§10) — until then everything runs in `bundled` mode.
+2. **Contact form** still posts nowhere; it needs a table or an email provider.
+3. **Payment** is recorded as a method (`Pay on delivery`, transfer), not
+   processed. A real gateway is a separate integration.
+4. **Password reset** — `sendPasswordReset()` / `updatePassword()` exist in
+   `js/api.js` but no page calls them yet.
+5. **Realtime** — Convex-style live updates are not wired; the dashboard has a
+   manual Refresh button.

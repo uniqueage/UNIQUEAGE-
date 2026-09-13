@@ -5,7 +5,9 @@
   "description": "Applies the UAGE Supabase migrations to an embedded Postgres and asserts the RLS policies, authorization model and order logic.",
   "type": "module",
   "scripts": {
-    "test": "node rls.test.mjs"
+    "test": "node rls.test.mjs",
+    "test:combined": "UAGE_TEST_SOURCE=combined node rls.test.mjs",
+    "build:setup": "node ../build-setup.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8"

@@ -3,6 +3,8 @@
   "use strict";
 
   var D = window.UAGE_DATA;
+  var STORE = window.UAGE_STORE;
+  var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   var PAGE = (document.body && document.body.dataset.page) || "home";
   var prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -21,7 +23,7 @@
   }
 
   function getCart() { return read(CART_KEY, []); }
-  function saveCart(cart) { write(CART_KEY, cart); updateBadges(); }
+  function saveCart(cart) { write(CART_KEY, cart); updateBadges(); refreshQuote(); }
   function getUser() { return read(USER_KEY, null); }
   function getOrders() { return read(ORDERS_KEY, []); }
   function cartKey(id, size) { return id + "|" + (size || ""); }
@@ -30,12 +32,67 @@
     return getCart().reduce(function (sum, item) { return sum + (item.qty || 1); }, 0);
   }
 
+  /* ---------- pricing: the browser never decides money ----------
+   * The cart asks the backend for a quote (public.checkout_preview) and shows
+   * exactly what comes back. Until that answer arrives — or when the shop is
+   * running on bundled data with no database behind it — the totals are marked
+   * `pending` and displayed as such rather than guessed at. The order is priced
+   * a second time inside place_order(), which is the only number that is ever
+   * charged. */
+  var QUOTE = null;        // { signature, totals, issues }
+  var quoteToken = 0;
+
+  function cartSignature(cart) {
+    return cart.map(function (i) { return cartKey(i.id, i.size) + ":" + i.qty; })
+      .sort().join(",");
+  }
+
   function computeTotals(cart) {
+    var signature = cartSignature(cart);
+    if (QUOTE && QUOTE.signature === signature) return QUOTE.totals;
+
     var sub = cart.reduce(function (s, i) { return s + (i.price || 0) * i.qty; }, 0);
-    var promo = read(PROMO_KEY, null);
-    var discount = promo ? Math.round(sub * 0.1) : 0;
-    var delivery = sub - discount > 0 && sub - discount < 10000 ? 1500 : 0;
-    return { sub: sub, discount: discount, delivery: delivery, total: sub - discount + delivery };
+    return { sub: sub, discount: 0, delivery: 0, total: sub, promo: null, issues: [], pending: true };
+  }
+
+  /** Fetches the authoritative quote for the current cart, then repaints. */
+  function refreshQuote(onDone) {
+    function done() { if (typeof onDone === "function") onDone(); }
+
+    if (!STORE || !STORE.isLive()) { QUOTE = null; done(); return; }
+
+    var cart = getCart();
+    if (!cart.length) { QUOTE = null; done(); return; }
+
+    var signature = cartSignature(cart);
+    var token = ++quoteToken;
+
+    STORE.quote({
+      items: cart.map(function (i) { return { id: i.id, size: i.size, qty: i.qty }; }),
+      promoCode: read(PROMO_KEY, null)
+    }).then(function (res) {
+      if (token !== quoteToken) return;            // a newer cart change won
+      if (!res || res.error || !res.data) { QUOTE = null; done(); return; }
+
+      var q = res.data;
+      QUOTE = {
+        signature: signature,
+        issues: q.issues || [],
+        totals: {
+          sub: q.subtotal,
+          discount: q.discount,
+          delivery: q.delivery,
+          total: q.total,
+          promo: q.promoCode,
+          promoMessage: q.promoMessage,
+          freeThreshold: q.freeDeliveryThreshold,
+          issues: q.issues || [],
+          pending: false
+        }
+      };
+      renderCart();
+      done();
+    });
   }
 
   function setFieldError(input, msg) {
@@ -550,13 +607,27 @@
             D.format((i.price || 0) * i.qty) + "</span></div>";
         }).join("");
       }
+      var pending = !!totals.pending;
       setText("coSubtotal", D.format(totals.sub));
-      setText("coDiscount", totals.discount ? '<span class="disc">−' + D.format(totals.discount) + "</span>" : "—");
-      setText("coDelivery", totals.delivery ? D.format(totals.delivery) : '<span class="free">Free</span>');
-      setText("coTotalSum", D.format(totals.total));
-      setText("coTotal", D.format(totals.total));
+      setText("coDiscount", pending ? "…" : (totals.discount ? '<span class="disc">−' + D.format(totals.discount) + "</span>" : "—"));
+      setText("coDelivery", pending ? "…" : (totals.delivery ? D.format(totals.delivery) : '<span class="free">Free</span>'));
+      setText("coTotalSum", pending ? "…" : D.format(totals.total));
+      setText("coTotal", pending ? "—" : D.format(totals.total));
     }
     renderSummary();
+    /* Replace the estimate with the server's own numbers when they arrive. */
+    refreshQuote(renderSummary);
+
+    /* Pre-fill delivery details from the signed-in profile (never overwriting
+     * anything the customer has already typed). */
+    if (STORE) {
+      STORE.me().then(function (me) {
+        if (!me) return;
+        if (form.name && !form.name.value) form.name.value = me.name || "";
+        if (form.email && !form.email.value) form.email.value = me.email || "";
+        if (form.phone && !form.phone.value) form.phone.value = me.phone || "";
+      });
+    }
 
     document.querySelectorAll(".payment-option input").forEach(function (radio) {
       radio.addEventListener("change", function () {
@@ -582,33 +653,92 @@
       setFieldError(form.city, city.length < 2 ? "Enter your city." : null); if (city.length < 2) ok = false;
       if (!ok) return;
 
-      var totals = computeTotals(cart);
-      var order = {
-        id: "UAGE-" + Date.now().toString().slice(-6),
-        date: new Date().toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }),
-        items: cart.map(function (i) {
-          var p = D.getProduct(i.id);
-          return { name: p ? p.name : i.id, size: i.size, qty: i.qty, price: i.price };
-        }),
-        total: totals.total
-      };
-      var orders = getOrders();
-      orders.unshift(order);
-      write(ORDERS_KEY, orders);
-      saveCart([]);
-      localStorage.removeItem(PROMO_KEY);
+      var paymentEl = document.querySelector(".payment-option input:checked");
+      var paymentMethod = paymentEl ? paymentEl.value : "Pay on delivery";
+      var notes = form.notes ? form.notes.value.trim() : "";
+      var promoCode = read(PROMO_KEY, null);
+      var submitBtn = document.getElementById("coSubmit");
+      var originalLabel = submitBtn ? submitBtn.innerHTML : "";
 
-      if (layout) layout.style.display = "none";
-      var success = document.getElementById("coSuccess");
-      if (success) {
-        success.classList.add("show");
-        var t = document.getElementById("coSuccessTitle");
-        if (t) t.textContent = "Order " + order.id + " placed!";
-        var m = document.getElementById("coSuccessMsg");
-        if (m) m.textContent = "Thanks " + name.split(" ")[0] + " — we'll call " + phone + " to confirm delivery to " + city + " soon.";
+      function restoreBtn() {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalLabel; }
       }
-      showToast("Order placed — " + D.format(totals.total), "fa-circle-check");
-      window.scrollTo({ top: 0, behavior: prefersReduced ? "auto" : "smooth" });
+
+      function showSuccess(orderNumber, total) {
+        if (layout) layout.style.display = "none";
+        var success = document.getElementById("coSuccess");
+        if (success) {
+          success.classList.add("show");
+          var t = document.getElementById("coSuccessTitle");
+          if (t) t.textContent = "Order " + orderNumber + " placed!";
+          var m = document.getElementById("coSuccessMsg");
+          if (m) m.textContent = "Thanks " + name.split(" ")[0] + " — we'll call " + phone +
+            " to confirm delivery to " + city + " soon.";
+        }
+        showToast("Order placed — " + D.format(total), "fa-circle-check");
+        window.scrollTo({ top: 0, behavior: prefersReduced ? "auto" : "smooth" });
+      }
+
+      /* No database behind the shop yet — keep the offline demo order so the
+       * checkout is never a dead button while the backend is being set up. */
+      if (!STORE || !STORE.isLive()) {
+        var totals = computeTotals(cart);
+        var demoOrder = {
+          id: "UAGE-" + Date.now().toString().slice(-6),
+          date: new Date().toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }),
+          items: cart.map(function (i) {
+            var p = D.getProduct(i.id);
+            return { name: p ? p.name : i.id, size: i.size, qty: i.qty, price: i.price };
+          }),
+          total: totals.total
+        };
+        var demoOrders = getOrders();
+        demoOrders.unshift(demoOrder);
+        write(ORDERS_KEY, demoOrders);
+        saveCart([]);
+        localStorage.removeItem(PROMO_KEY);
+        showSuccess(demoOrder.id, totals.total);
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>Placing order…';
+      }
+
+      /* No prices are sent: the database re-reads every product and recomputes
+       * the subtotal, discount, delivery fee and total before writing. */
+      STORE.placeOrder({
+        items: cart.map(function (i) { return { id: i.id, size: i.size, qty: i.qty }; }),
+        paymentMethod: paymentMethod,
+        promoCode: promoCode,
+        delivery: {
+          name: name, phone: phone, email: email,
+          address: address, city: city, notes: notes
+        }
+      }).then(function (res) {
+        if (res && res.error) {
+          restoreBtn();
+
+          /* Orders belong to an account: send them to sign in and back. */
+          if (res.error.code === "AUTH" || /sign in/i.test(res.error.message)) {
+            showToast(res.error.message, "fa-right-to-bracket");
+            setTimeout(function () { window.location.href = "signup.html"; }, 1300);
+            return;
+          }
+
+          showToast(res.error.message, "fa-triangle-exclamation");
+          /* The basket and the shelf disagree — re-quote so the page tells the
+           * truth about stock before they try again. */
+          refreshQuote(renderSummary);
+          return;
+        }
+
+        saveCart([]);
+        localStorage.removeItem(PROMO_KEY);
+        QUOTE = null;
+        showSuccess(res.data.orderNumber, res.data.total);
+      });
     });
   }
 
@@ -774,8 +904,16 @@
   function updateSummary(cart) {
     var totals = computeTotals(cart);
     var sub = totals.sub, discount = totals.discount, delivery = totals.delivery, total = totals.total;
+    var pending = !!totals.pending;
+
     var promoMsgEl = document.getElementById("promoMsg");
-    if (discount && promoMsgEl) { promoMsgEl.className = "promo-msg ok"; promoMsgEl.textContent = "SPARKLE10 applied — 10% off 🎉"; }
+    if (promoMsgEl) {
+      if (pending) { promoMsgEl.className = "promo-msg"; promoMsgEl.textContent = ""; }
+      else if (totals.promo) { promoMsgEl.className = "promo-msg ok"; promoMsgEl.textContent = totals.promo + " applied 🎉"; }
+      else if (totals.promoMessage) { promoMsgEl.className = "promo-msg err"; promoMsgEl.textContent = totals.promoMessage; }
+      else if (totals.issues && totals.issues.length) { promoMsgEl.className = "promo-msg err"; promoMsgEl.textContent = totals.issues[0]; }
+      else { promoMsgEl.className = "promo-msg"; promoMsgEl.textContent = ""; }
+    }
 
     var el = document.getElementById("cartSummary");
     if (!el) return;
@@ -784,65 +922,62 @@
     var delEl = document.getElementById("sumDelivery");
     var totEl = document.getElementById("sumTotal");
     if (subEl) subEl.textContent = D.format(sub);
-    if (discEl) discEl.innerHTML = promo ? '<span class="disc">−' + D.format(discount) + "</span>" : "—";
-    if (delEl) delEl.innerHTML = delivery === 0 ? '<span class="free">Free</span>' : D.format(delivery);
-    if (totEl) totEl.textContent = D.format(total);
+    if (discEl) discEl.innerHTML = pending ? "…" : (discount ? '<span class="disc">−' + D.format(discount) + "</span>" : "—");
+    if (delEl) delEl.innerHTML = pending ? "…" : (delivery === 0 ? '<span class="free">Free</span>' : D.format(delivery));
+    if (totEl) totEl.textContent = pending ? "…" : D.format(total);
     var checkoutTotal = document.getElementById("checkoutTotal");
-    if (checkoutTotal) checkoutTotal.textContent = D.format(total);
-    if (promoMsgEl && !promo) { promoMsgEl.className = "promo-msg"; promoMsgEl.textContent = ""; }
+    if (checkoutTotal) checkoutTotal.textContent = pending ? "—" : D.format(total);
   }
 
   function initCartPage() {
     var promoBtn = document.getElementById("promoApply");
     var promoInput = document.getElementById("promoInput");
     if (promoBtn && promoInput) {
+      /* The code is validated by the SERVER. promo_codes is deliberately not
+       * customer-readable, so the browser cannot know whether a code exists or
+       * what it is worth — the shop only ever learns the answer for the code
+       * the customer already typed. */
       promoBtn.addEventListener("click", function () {
         var code = promoInput.value.trim().toUpperCase();
         var msgEl = document.getElementById("promoMsg");
-        if (code === "SPARKLE10") {
-          write(PROMO_KEY, code);
-          if (msgEl) { msgEl.className = "promo-msg ok"; msgEl.textContent = "SPARKLE10 applied — 10% off 🎉"; }
-          renderCart();
-        } else {
-          if (msgEl) { msgEl.className = "promo-msg err"; msgEl.textContent = "That code isn't valid — try SPARKLE10."; }
-        }
-      });
-    }
 
-    var checkoutBtn = document.getElementById("checkoutBtn");
-    if (checkoutBtn) {
-      checkoutBtn.addEventListener("click", function () {
+        if (!code) {
+          localStorage.removeItem(PROMO_KEY);
+          QUOTE = null;
+          refreshQuote(renderCart);
+          return;
+        }
+
+        if (!STORE || !STORE.isLive()) {
+          if (msgEl) {
+            msgEl.className = "promo-msg err";
+            msgEl.textContent = "Promo codes start working once the store is connected to its database.";
+          }
+          return;
+        }
+
         var cart = getCart();
         if (!cart.length) return;
-        var sub = cart.reduce(function (s, i) { return s + (i.price || 0) * i.qty; }, 0);
-        var discount = read(PROMO_KEY, null) ? Math.round(sub * 0.1) : 0;
-        var delivery = sub - discount > 0 && sub - discount < 10000 ? 1500 : 0;
-        var total = sub - discount + delivery;
-        var order = {
-          id: "UAGE-" + Date.now().toString().slice(-6),
-          date: new Date().toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }),
-          items: cart.map(function (i) {
-            var p = D.getProduct(i.id);
-            return { name: p ? p.name : i.id, size: i.size, qty: i.qty, price: i.price };
-          }),
-          total: total
-        };
-        var orders = getOrders();
-        orders.unshift(order);
-        write(ORDERS_KEY, orders);
-        saveCart([]);
-        localStorage.removeItem(PROMO_KEY);
-        renderCart();
-        var done = document.getElementById("checkoutDone");
-        if (done) {
-          done.style.display = "";
-          done.innerHTML = '<i class="fas fa-circle-check"></i>' +
-            '<h3>Order ' + order.id + " placed!</h3>" +
-            "<p>Thanks for shopping with UAGE. We'll reach out to confirm delivery soon.</p>" +
-            '<a class="btn btn-primary" href="account.html"><i class="fas fa-user"></i>View my orders</a>';
-          done.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth", block: "center" });
-        }
-        showToast("Order placed — " + D.format(total), "fa-circle-check");
+        if (msgEl) { msgEl.className = "promo-msg"; msgEl.textContent = "Checking…"; }
+
+        STORE.quote({
+          items: cart.map(function (i) { return { id: i.id, size: i.size, qty: i.qty }; }),
+          promoCode: code
+        }).then(function (res) {
+          var valid = res && res.data && res.data.promoValid;
+          if (valid) {
+            write(PROMO_KEY, res.data.promoCode || code);
+          } else {
+            localStorage.removeItem(PROMO_KEY);
+            if (msgEl) {
+              msgEl.className = "promo-msg err";
+              msgEl.textContent = (res && res.data && res.data.promoMessage) ||
+                "That code isn't valid for this order.";
+            }
+          }
+          QUOTE = null;
+          refreshQuote(renderCart);
+        });
       });
     }
   }
@@ -891,16 +1026,30 @@
         var ok = true;
         setErr(signupForm.name, name.length < 2 ? "Please enter your full name." : null);
         if (name.length < 2) ok = false;
-        setErr(signupForm.email, !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) ? "Please enter a valid email address." : null);
-        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) ok = false;
+        setErr(signupForm.email, !EMAIL_RE.test(email) ? "Please enter a valid email address." : null);
+        if (!EMAIL_RE.test(email)) ok = false;
         setErr(signupForm.password, pass.length < 6 ? "Password must be at least 6 characters." : null);
         if (pass.length < 6) ok = false;
         setErr(signupForm.confirm, pass !== confirm ? "Passwords do not match." : null);
         if (pass !== confirm) ok = false;
         if (!ok) return;
-        write(USER_KEY, { name: name, email: email, password: pass, joined: new Date().toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" }) });
-        showToast("Welcome to UAGE, " + name.split(" ")[0] + "!", "fa-circle-check");
-        setTimeout(function () { window.location.href = "account.html"; }, 700);
+        if (!STORE) return;
+
+        var signupBtn = signupForm.querySelector('button[type="submit"]');
+        if (signupBtn) signupBtn.disabled = true;
+
+        /* The account is created by Supabase Auth: the password is sent once
+         * and never stored on this device. */
+        STORE.signUp({ name: name, email: email, password: pass }).then(function (res) {
+          if (signupBtn) signupBtn.disabled = false;
+          if (res && res.error) { setErr(signupForm.email, res.error.message); return; }
+          if (res && res.data && res.data.needsEmailConfirmation) {
+            showToast("Check your inbox to confirm your email, then sign in.", "fa-envelope");
+            return;
+          }
+          showToast("Welcome to UAGE, " + name.split(" ")[0] + "!", "fa-circle-check");
+          setTimeout(function () { window.location.href = "account.html"; }, 800);
+        });
       });
     }
 
@@ -909,75 +1058,107 @@
         e.preventDefault();
         var email = loginForm.email.value.trim().toLowerCase();
         var pass = loginForm.password.value;
-        var user = getUser();
-        if (user && user.email === email && user.password === pass) {
-          showToast("Welcome back, " + user.name.split(" ")[0] + "!", "fa-circle-check");
-          setTimeout(function () { window.location.href = "account.html"; }, 700);
-        } else {
-          var hint = loginForm.password.parentElement.querySelector(".form-hint");
-          if (hint) { hint.textContent = "No account matches that email & password. Try signing up."; hint.classList.add("show"); }
-        }
+        if (!STORE) return;
+
+        var hint = loginForm.password.parentElement.querySelector(".form-hint");
+        var loginBtn = loginForm.querySelector('button[type="submit"]');
+        if (loginBtn) loginBtn.disabled = true;
+
+        /* Credentials are checked by Supabase Auth, never against anything
+         * stored in the browser. */
+        STORE.signIn(email, pass).then(function (res) {
+          if (loginBtn) loginBtn.disabled = false;
+          if (res && res.error) {
+            if (hint) { hint.textContent = res.error.message; hint.classList.add("show"); }
+            return;
+          }
+          var who = (res.data && res.data.user && (res.data.user.name || res.data.user.email)) || "";
+          showToast("Welcome back" + (who ? ", " + String(who).split(" ")[0] : "") + "!", "fa-circle-check");
+          setTimeout(function () { window.location.href = "account.html"; }, 800);
+        });
       });
     }
   }
 
   /* ---------- account page ---------- */
   function initAccount() {
-    var user = getUser();
     var signedInEl = document.getElementById("accountSignedIn");
     var signedOutEl = document.getElementById("accountSignedOut");
     if (!signedInEl && !signedOutEl) return;
 
-    if (!user) {
+    function showSignedOut() {
       if (signedInEl) signedInEl.style.display = "none";
       if (signedOutEl) signedOutEl.style.display = "";
-      return;
     }
-    if (signedOutEl) signedOutEl.style.display = "none";
-    if (signedInEl) signedInEl.style.display = "";
 
-    var avatar = document.getElementById("accountAvatar");
-    if (avatar) avatar.textContent = initials(user.name);
-    var nameEl = document.getElementById("accountName");
-    if (nameEl) nameEl.textContent = user.name;
-    var emailEl = document.getElementById("accountEmail");
-    if (emailEl) emailEl.textContent = user.email;
-    var joinedEl = document.getElementById("accountJoined");
-    if (joinedEl) joinedEl.textContent = user.joined || "—";
+    function paintIdentity(user) {
+      if (signedOutEl) signedOutEl.style.display = "none";
+      if (signedInEl) signedInEl.style.display = "";
+      var avatar = document.getElementById("accountAvatar");
+      if (avatar) avatar.textContent = initials(user.name);
+      var nameEl = document.getElementById("accountName");
+      if (nameEl) nameEl.textContent = user.name || "—";
+      var emailEl = document.getElementById("accountEmail");
+      if (emailEl) emailEl.textContent = user.email || "—";
+      var joinedEl = document.getElementById("accountJoined");
+      if (joinedEl) joinedEl.textContent = user.joined || "—";
+    }
 
-    var orders = getOrders();
-    var countEl = document.getElementById("accountOrderCount");
-    if (countEl) countEl.textContent = orders.length;
-    var spentEl = document.getElementById("accountTotalSpent");
-    if (spentEl) spentEl.textContent = D.format(orders.reduce(function (s, o) { return s + o.total; }, 0));
+    function paintOrders(orders) {
+      var countEl = document.getElementById("accountOrderCount");
+      if (countEl) countEl.textContent = orders.length;
+      var spentEl = document.getElementById("accountTotalSpent");
+      if (spentEl) spentEl.textContent = D.format(orders.reduce(function (s, o) { return s + (o.total || 0); }, 0));
 
-    var listEl = document.getElementById("ordersList");
-    if (listEl) {
+      var listEl = document.getElementById("ordersList");
+      if (!listEl) return;
       if (!orders.length) {
         listEl.innerHTML = '<div class="empty-state" style="padding:2rem 1rem"><i class="fas fa-box-open"></i>' +
           "<h3>No orders yet</h3><p>Your placed orders will show up here.</p>" +
           '<a class="btn btn-primary" href="shop.html"><i class="fas fa-store"></i>Start shopping</a></div>';
-      } else {
-        listEl.innerHTML = orders.map(function (o) {
-          var items = o.items.map(function (i) { return i.qty + "× " + i.name + (i.size ? " (" + i.size + ")" : ""); }).join(", ");
-          return '<div class="order-row">' +
-            '<div><div class="ord-id"><i class="fas fa-receipt"></i> ' + o.id + "</div>" +
-            '<div class="ord-date">' + o.date + "</div></div>" +
-            '<div class="ord-total">' + D.format(o.total) + "</div>" +
-            '<div class="ord-items">' + items + "</div>" +
-          "</div>";
-        }).join("");
+        return;
       }
+      listEl.innerHTML = orders.map(function (o) {
+        var items = (o.items || []).map(function (i) { return i.qty + "× " + i.name + (i.size ? " (" + i.size + ")" : ""); }).join(", ");
+        return '<div class="order-row">' +
+          '<div><div class="ord-id"><i class="fas fa-receipt"></i> ' + o.id + "</div>" +
+          '<div class="ord-date">' + o.date + (o.status ? " · " + o.status : "") + "</div></div>" +
+          '<div class="ord-total">' + D.format(o.total) + "</div>" +
+          '<div class="ord-items">' + items + "</div>" +
+        "</div>";
+      }).join("");
     }
 
     var signoutBtn = document.getElementById("signoutBtn");
     if (signoutBtn) {
       signoutBtn.addEventListener("click", function () {
-        localStorage.removeItem(USER_KEY);
-        showToast("Signed out. See you soon!", "fa-right-from-bracket");
-        setTimeout(function () { window.location.reload(); }, 700);
+        var finish = function () {
+          showToast("Signed out. See you soon!", "fa-right-from-bracket");
+          setTimeout(function () { window.location.reload(); }, 700);
+        };
+        if (STORE) STORE.signOut().then(finish);
+        else finish();
       });
     }
+
+    /* Without the adapter, keep the previous behaviour exactly. */
+    if (!STORE) {
+      var cached = getUser();
+      if (!cached) { showSignedOut(); return; }
+      paintIdentity(cached);
+      paintOrders(getOrders());
+      return;
+    }
+
+    /* The session — not the display cache — decides whether anyone is signed
+     * in, and the orders come from the database. */
+    STORE.me().then(function (user) {
+      if (!user) { showSignedOut(); return; }
+      paintIdentity(user);
+      STORE.myOrders().then(function (res) {
+        paintOrders(res && res.live && res.data ? res.data : getOrders());
+      });
+    });
   }
 
   /* ---------- reveal on scroll ---------- */
@@ -1003,15 +1184,29 @@
   buildShell();
   initHeader();
   updateBadges();
-  initHome();
-  initProduct();
-  initCategory();
-  initShop();
-  renderCart();
-  initCartPage();
-  initCheckout();
   initContact();
   initAuth();
   initAccount();
   observeReveals();
+
+  /* Whatever renders catalog data waits for the catalog — the database when it
+   * is reachable, otherwise the bundled data.js. The shell, cart badge,
+   * contact, auth and account pages deliberately do NOT wait, so the page is
+   * never blank while the request is in flight. */
+  function renderCatalogViews() {
+    initHome();
+    initProduct();
+    initCategory();
+    initShop();
+    renderCart();
+    initCartPage();
+    initCheckout();
+    observeReveals();
+    refreshQuote();
+  }
+
+  /* Both callbacks render: if loading the catalog ever goes wrong the shop
+   * still draws itself from the bundled data rather than staying empty. */
+  if (STORE) STORE.catalog().then(renderCatalogViews, renderCatalogViews);
+  else renderCatalogViews();
 })();

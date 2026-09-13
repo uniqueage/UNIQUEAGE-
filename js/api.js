@@ -559,6 +559,68 @@
       .catch(function (err) { return { data: null, error: toError(err) }; });
   }
 
+  /**
+   * Server-side quote for the current cart. Writes NOTHING — it is the
+   * read-only twin of placeOrder(), so the cart can show a real subtotal,
+   * discount, delivery fee and total without the browser doing any maths.
+   *
+   * items: [{ id: slug, size: label, qty: n }]
+   */
+  function previewCheckout(fields) {
+    var f = fields || {};
+
+    if (!f.items || !f.items.length) {
+      return ok({
+        subtotal: 0, discount: 0, delivery: 0, total: 0,
+        standardDelivery: 0, freeDeliveryThreshold: null,
+        promoCode: null, promoPercent: null, promoValid: false, promoMessage: null,
+        items: [], issues: []
+      });
+    }
+
+    return resolveCart(f.items)
+      .then(function (payload) {
+        return withClient(function (c) {
+          return c.rpc("checkout_preview", {
+            p_items: payload,
+            p_promo_code: f.promoCode || null
+          });
+        });
+      })
+      .then(function (r) {
+        if (r && r.error) return r;
+        var raw = r.data || {};
+        return ok({
+          subtotal: Number(raw.subtotal || 0),
+          discount: Number(raw.discount || 0),
+          delivery: Number(raw.delivery_fee || 0),
+          total: Number(raw.total_amount || 0),
+          standardDelivery: Number(raw.standard_delivery_fee || 0),
+          freeDeliveryThreshold: raw.free_delivery_threshold === undefined
+            ? null : Number(raw.free_delivery_threshold),
+          promoCode: raw.promo_code || null,
+          promoPercent: raw.promo_percent_off === null || raw.promo_percent_off === undefined
+            ? null : Number(raw.promo_percent_off),
+          promoValid: Boolean(raw.promo_valid),
+          promoMessage: raw.promo_message || null,
+          items: (raw.items || []).map(function (i) {
+            return {
+              name: i.name,
+              size: i.label || "",
+              qty: i.quantity,
+              price: Number(i.unit_price),
+              lineTotal: Number(i.line_total),
+              stock: i.stock,
+              available: Boolean(i.available),
+              reason: i.reason || null
+            };
+          }),
+          issues: raw.issues || []
+        });
+      })
+      .catch(function (err) { return { data: null, error: toError(err) }; });
+  }
+
   function listMyOrders() {
     return withClient(function (c) {
       return c
@@ -880,6 +942,7 @@
 
     /* orders */
     placeOrder: placeOrder,
+    previewCheckout: previewCheckout,
     listMyOrders: listMyOrders,
 
     /* admin */

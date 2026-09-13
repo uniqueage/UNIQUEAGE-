@@ -15,13 +15,15 @@
  *
  * Run:  cd supabase/tests && npm test
  */
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
+import { expectedSetupSql, migrationFiles } from "../build-setup.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MIGRATIONS_DIR = join(HERE, "..", "migrations");
+const SETUP_PATH = join(HERE, "..", "SETUP.sql");
 
 // PGlite ships a bundled build, so an uncaught Postgres error would dump the
 // whole module source. Report just the message instead.
@@ -96,15 +98,36 @@ async function expectFailure(name, fn, expectedFragment) {
 /* =========================================================== apply schema */
 section("Migrations");
 
-const migrationFiles = readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith(".sql")).sort();
-check(`found migration files (${migrationFiles.length})`, migrationFiles.length === 5);
+/*
+ * Which SQL is applied? By default each migration file in timestamp order —
+ * exactly what `supabase db push` does. With UAGE_TEST_SOURCE=combined the
+ * generated single-file supabase/SETUP.sql is applied instead, as ONE script,
+ * so the file the owner pastes into the SQL editor is proven equivalent by the
+ * very same assertions below.
+ */
+const SOURCE = process.env.UAGE_TEST_SOURCE === "combined" ? "combined" : "per-file";
+const files = migrationFiles();
+check(`found migration files (${files.length})`, files.length === 6);
+
+/* Drift guard: SETUP.sql is generated, so it must always equal the ordered
+ * concatenation of the migrations. Fix with: node supabase/build-setup.mjs */
+check(
+  "supabase/SETUP.sql is in sync with the migrations",
+  readFileSync(SETUP_PATH, "utf8") === expectedSetupSql(),
+  "run: node supabase/build-setup.mjs"
+);
 
 await applyFile(join(HERE, "supabase-stubs.sql"), "supabase-stubs.sql");
 console.log("  \u001b[32m✓\u001b[0m supabase-stubs.sql (auth/storage stand-ins)");
 
-for (const file of migrationFiles) {
-  await applyFile(join(MIGRATIONS_DIR, file), file);
-  console.log(`  \u001b[32m✓\u001b[0m ${file}`);
+if (SOURCE === "combined") {
+  await applyFile(SETUP_PATH, "SETUP.sql");
+  console.log("  \u001b[32m✓\u001b[0m SETUP.sql — all 6 migrations as ONE script");
+} else {
+  for (const file of files) {
+    await applyFile(join(MIGRATIONS_DIR, file), file);
+    console.log(`  \u001b[32m✓\u001b[0m ${file}`);
+  }
 }
 
 /* ============================================================ seeded data */
@@ -427,6 +450,119 @@ await expectFailure(
     ]),
   "full name"
 );
+
+/* ========================================================= checkout quote */
+section("Checkout quote — the cart cannot invent a price");
+
+/* Counted as the owner, so the "wrote nothing" comparison does not depend on
+ * which role happens to be active. */
+await asPostgres();
+const ordersBeforeQuote = await count("public.orders");
+
+/* A guest must be able to see what a basket costs before signing up. */
+await asAnon();
+const guestQuote = (
+  await db.query("select public.checkout_preview($1::jsonb, $2) as q", [
+    JSON.stringify([{ variant_id: CRYSTAL_1L.id, quantity: 1 }]),
+    null,
+  ])
+).rows[0].q;
+check("an anonymous visitor can get a quote", Boolean(guestQuote));
+
+/* THE anti-drift check: the quote and the written order must agree, or the cart
+ * shows one number and the receipt charges another. */
+eq("quote subtotal matches the placed order", Number(guestQuote.subtotal), Number(orderRes.subtotal));
+eq("quote delivery matches the placed order", Number(guestQuote.delivery_fee), Number(orderRes.delivery_fee));
+eq("quote total matches the placed order", Number(guestQuote.total_amount), Number(orderRes.total_amount));
+
+const promoQuote = (
+  await db.query("select public.checkout_preview($1::jsonb, $2) as q", [
+    JSON.stringify([{ product_id: BUTTER.id, quantity: 2 }]),
+    "SPARKLE10",
+  ])
+).rows[0].q;
+eq("promo quote discount matches the placed order", Number(promoQuote.discount), Number(promoRes.discount));
+eq("promo quote total matches the placed order", Number(promoQuote.total_amount), Number(promoRes.total_amount));
+eq("a valid code is reported as valid", promoQuote.promo_valid, true);
+eq("  ...and echoes the code", promoQuote.promo_code, "SPARKLE10");
+
+await asPostgres();
+eq("quoting writes no order", await count("public.orders"), ordersBeforeQuote);
+
+/* Free delivery is a server rule, so the cart can show the real gap to it. */
+const bigQuote = (
+  await db.query("select public.checkout_preview($1::jsonb, $2) as q", [
+    JSON.stringify([{ variant_id: CRYSTAL_1L.id, quantity: 3 }]),
+    null,
+  ])
+).rows[0].q;
+eq("25,500 is over the free-delivery threshold", Number(bigQuote.delivery_fee), 0);
+eq("  ...and the threshold itself is published to the client", Number(bigQuote.free_delivery_threshold), 10000);
+eq("a healthy basket reports no issues", bigQuote.issues.length, 0);
+
+/* A bad code must not reveal whether it exists, or why it failed. */
+const badPromoQuote = (
+  await db.query("select public.checkout_preview($1::jsonb, $2) as q", [
+    JSON.stringify([{ variant_id: CRYSTAL_1L.id, quantity: 1 }]),
+    "NOT-A-REAL-CODE",
+  ])
+).rows[0].q;
+eq("an unknown code gives no discount", Number(badPromoQuote.discount), 0);
+eq("  ...is reported as invalid", badPromoQuote.promo_valid, false);
+check(
+  "  ...with the same generic message as place_order",
+  badPromoQuote.promo_message === "That promo code is not valid for this order.",
+  badPromoQuote.promo_message
+);
+
+/* Content problems are reported, not raised, so the cart can still render.
+ * One unit more than the shelf holds — a legal quantity, but not in stock. */
+await asAnon();
+const crystalStock = await stockOf(CRYSTAL_1L.id);
+const oversellQty = Math.min(999, crystalStock + 1);
+const soldOutQuote = (
+  await db.query("select public.checkout_preview($1::jsonb, $2) as q", [
+    JSON.stringify([{ variant_id: CRYSTAL_1L.id, quantity: oversellQty }]),
+    null,
+  ])
+).rows[0].q;
+eq("an impossible quantity is marked unavailable", soldOutQuote.items[0].available, false);
+check(
+  "  ...and the reason is shown to the customer",
+  /left in stock/.test(soldOutQuote.items[0].reason || ""),
+  soldOutQuote.items[0].reason
+);
+
+const goneQuote = (
+  await db.query("select public.checkout_preview($1::jsonb, $2) as q", [
+    JSON.stringify([{ product_id: "99999999-9999-4999-8999-999999999999", quantity: 1 }]),
+    null,
+  ])
+).rows[0].q;
+eq("a deleted product is marked unavailable", goneQuote.items[0].available, false);
+check(
+  "  ...with a reason the cart can show",
+  /no longer available/i.test(goneQuote.items[0].reason || ""),
+  goneQuote.items[0].reason
+);
+
+/* And the quote is only ever a quote: place_order still refuses a bad basket.
+ * Checked as a signed-in customer, since an anonymous caller is refused
+ * earlier (for not being signed in) and would mask the stock check. */
+await asCustomer(CUSTOMER_A);
+await expectFailure(
+  "the quote does not soften place_order — an unavailable item is still refused",
+  () =>
+    db.query("select public.place_order($1::jsonb, $2::jsonb, $3, $4)", [
+      JSON.stringify([{ variant_id: CRYSTAL_1L.id, quantity: oversellQty }]),
+      JSON.stringify({ name: "Ada Customer", phone: "08030000001", address: "1 Test Street", city: "Lagos" }),
+      "Pay on delivery",
+      null,
+    ]),
+  "stock"
+);
+
+await asPostgres();
 
 /* ================================================= customer B + isolation */
 section("Cross-customer isolation");
