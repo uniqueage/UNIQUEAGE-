@@ -141,6 +141,7 @@
                 '<a href="about.html">About us</a>' +
                 '<a href="faq.html">FAQ</a>' +
                 '<a href="contact.html">Contact</a>' +
+                '<a href="admin.html">Staff dashboard</a>' +
               "</div>" +
             "</div>" +
             '<div class="socials">' +

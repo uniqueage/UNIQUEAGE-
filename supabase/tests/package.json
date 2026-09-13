@@ -1,0 +1,14 @@
+{
+  "name": "uage-supabase-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Applies the UAGE Supabase migrations to an embedded Postgres and asserts the RLS policies, authorization model and order logic.",
+  "type": "module",
+  "scripts": {
+    "test": "node rls.test.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8"
+  },
+  "license": "UNLICENSED"
+}

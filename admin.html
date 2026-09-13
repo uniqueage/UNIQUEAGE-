@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — UNIQUE AGE · UAGE</title>
+  <meta name="description" content="UAGE store administration — products, inventory, orders, customers and promotions." />
+  <meta name="theme-color" content="#062a3f" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%AB%A7%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="adm">
+
+  <div class="adm-shell">
+
+    <!-- ============================= SIDEBAR ============================= -->
+    <aside class="adm-side" id="admSide" aria-label="Admin navigation">
+      <div class="adm-side-inner">
+        <a class="adm-brand" href="admin.html">
+          <span class="adm-brand-mark">U</span>
+          <span class="adm-brand-text">
+            <span class="adm-brand-word">UAGE<span class="adm-dot">.</span></span>
+            <span class="adm-brand-sub">Admin</span>
+          </span>
+        </a>
+
+        <nav class="adm-nav" id="admNav">
+          <span class="adm-nav-label">Store</span>
+          <a class="adm-nav-link" href="#overview" data-section="overview"><i class="fas fa-gauge-high"></i>Overview</a>
+          <a class="adm-nav-link" href="#products" data-section="products"><i class="fas fa-box-open"></i>Products<span class="adm-nav-count" id="navCountProducts">—</span></a>
+          <a class="adm-nav-link" href="#inventory" data-section="inventory"><i class="fas fa-warehouse"></i>Inventory<span class="adm-nav-count" id="navCountLow">—</span></a>
+          <a class="adm-nav-link" href="#orders" data-section="orders"><i class="fas fa-receipt"></i>Orders<span class="adm-nav-count" id="navCountOrders">—</span></a>
+          <span class="adm-nav-label">People &amp; offers</span>
+          <a class="adm-nav-link" href="#customers" data-section="customers"><i class="fas fa-users"></i>Customers<span class="adm-nav-count" id="navCountCustomers">—</span></a>
+          <a class="adm-nav-link" href="#categories" data-section="categories"><i class="fas fa-tags"></i>Categories</a>
+          <a class="adm-nav-link" href="#promos" data-section="promos"><i class="fas fa-ticket"></i>Promo codes</a>
+          <span class="adm-nav-label">System</span>
+          <a class="adm-nav-link" href="#connection" data-section="connection"><i class="fas fa-plug"></i>Connection</a>
+        </nav>
+
+        <div class="adm-side-foot">
+          <span><i class="fas fa-shield-halved"></i> Every action is authorised in the database by Row Level Security.</span>
+          <a href="index.html"><i class="fas fa-arrow-up-right-from-square"></i> Back to the store</a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="adm-backdrop" id="admBackdrop"></div>
+
+    <!-- =============================== MAIN ============================= -->
+    <div class="adm-main">
+      <header class="adm-top">
+        <button class="adm-burger" id="admBurger" type="button" aria-label="Open admin menu" aria-expanded="false">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="adm-top-title">
+          <h1 id="admTitle">Dashboard</h1>
+          <p id="admSubtitle">Loading…</p>
+        </div>
+
+        <div class="adm-top-actions">
+          <button class="adm-btn adm-btn-sm adm-btn-ghost" id="admRefresh" type="button" title="Reload data">
+            <i class="fas fa-rotate"></i><span class="adm-refresh-label">Refresh</span>
+          </button>
+          <div class="adm-user" id="admUser" hidden>
+            <span class="adm-avatar" id="admAvatar">U</span>
+            <span class="adm-user-text">
+              <strong id="admUserName">—</strong>
+              <span id="admUserEmail">—</span>
+            </span>
+          </div>
+          <button class="adm-btn adm-btn-sm" id="admSignOut" type="button" hidden>
+            <i class="fas fa-right-from-bracket"></i>Sign out
+          </button>
+        </div>
+      </header>
+
+      <div class="adm-body">
+        <!-- every section is rendered here by js/admin.js -->
+        <div class="adm-view" id="admView">
+          <div class="adm-panel"><div class="adm-skeleton"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== MODAL ============================== -->
+  <div class="adm-modal" id="admModal" role="dialog" aria-modal="true" aria-labelledby="admModalTitle">
+    <div class="adm-modal-card" id="admModalCard">
+      <div class="adm-modal-head">
+        <div>
+          <h3 id="admModalTitle">Title</h3>
+          <p id="admModalSubtitle"></p>
+        </div>
+        <button class="adm-modal-close" id="admModalClose" type="button" aria-label="Close">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+      <div class="adm-modal-body" id="admModalBody"></div>
+      <div class="adm-modal-foot" id="admModalFoot"></div>
+    </div>
+  </div>
+
+  <div class="adm-toast" id="admToast"><i class="fas fa-circle-check"></i><span></span></div>
+
+  <script src="js/supabase-config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
